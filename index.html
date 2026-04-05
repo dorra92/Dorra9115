@@ -23,6 +23,7 @@
       .hero-section { background: linear-gradient(135deg, var(--primary-blue) 0%, #0066cc 100%); color: white; padding: 60px 0; margin-bottom: 40px; }
       .test-badge { background-color: #e7f1ff; color: var(--primary-blue); border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; margin: 2px; display: inline-block; transition: 0.2s; cursor: pointer; }
       .test-badge:hover { background-color: var(--primary-blue); color: white; }
+      .signature-text { color: #adb5bd; font-size: 0.85rem; }
     </style>
   </head>
   <body>
@@ -46,9 +47,9 @@
 
     <div id="app-content"></div>
 
-    <footer class="bg-dark text-white py-4 mt-5">
+    <footer class="bg-dark text-white py-5 mt-5">
       <div class="container text-center">
-        <p id="footer-text" class="mb-4">&copy; 2026 DMSCO Health. All rights reserved.</p>
+       
         <hr class="border-secondary w-25 mx-auto mb-4">
         <div class="signature-text">
             <p class="mb-1">Made by: <strong>Mohamed Salah Dorra - 9115</strong></p>
@@ -94,7 +95,6 @@
         { name: "HOMA-IR", description: { en: "Evaluates insulin resistance.", ar: "تقييم مقاومة الأنسولين." } }
       ];
 
-      // --- LOGIC ---
       let currentLang = 'en';
       const translations = {
         en: { 
@@ -306,8 +306,13 @@
 
       function renderPreparation() {
         const t = translations[currentLang];
-        const fasting = packages.filter(p => p.precautions[currentLang].includes('صيام') || p.precautions[currentLang].toLowerCase().includes('fasting'));
-        const nonFasting = packages.filter(p => !fasting.includes(p));
+        // Define exclusion IDs (Vitamin D: 10, Celiac: 18, Basic Diabetic: 20)
+        const excludeIds = [10, 18, 20];
+        const visiblePackages = packages.filter(p => !excludeIds.includes(p.id));
+        
+        const fasting = visiblePackages.filter(p => p.precautions[currentLang].includes('صيام') || p.precautions[currentLang].toLowerCase().includes('fasting'));
+        const nonFasting = visiblePackages.filter(p => !fasting.includes(p));
+        
         document.getElementById('app-content').innerHTML = `
           <div data-view="prep" class="container py-5">
             <h1 class="text-center fw-bold mb-5">${t.prepTitle}</h1>
