@@ -118,6 +118,13 @@
             border-radius: 16px;
             padding: 12px;
         }
+        .iso-cert-badge {
+            transition: all 0.2s ease;
+        }
+        .iso-cert-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -303,7 +310,7 @@
         
         const enhancedGlossary = getEnhancedGlossaryData();
         
-        const translations = { en:{ logo:"Health Packages", home:"Home", packages:"Packages", glossary:"Test Glossary", preparation:"Prep Guide", langSwitch:"العربية", searchPlaceholder:"Search name, code or test...", sar:"SAR", tests:"tests", viewDetails:"View Details", fastingRequired:"Fasting", noFasting:"Non-fasting", targetGroup:"Target Group", precautions:"Precautions", includedTests:"Tests included", scanAtLab:"Scan at lab", clickToEnlarge:"Click to enlarge", all:"All", men:"Men's", women:"Women's", children:"Children", weightLoss:"Weight Loss", skinBeauty:"Beauty", chronicDisease:"Chronic", vitamins:"Vitamins", noResults:"No packages match", filters:"Filters", clearFilters:"Clear", priceRange:"Price", min:"Min", max:"Max", featured:"Featured Packages", heroTitle:"Precision Lab Testing", heroSubtitle:"Comprehensive packages for every health need.", footerText:"© 2026 Health Packages", madeBy:"Made by", area:"Area", testFilter:"Filter by Test", testPlaceholder:"e.g., LDL, HDL, TSH", backToHome:"Back to Home", glossaryTitle:"Clinical Laboratory Test Directory", glossarySubtitle:"Complete reference with detailed descriptions, reference ranges, and clinical significance" }, ar:{ logo:"باقات الصحة", home:"الرئيسية", packages:"الباقات", glossary:"قاموس التحاليل", preparation:"دليل التحضير", langSwitch:"English", searchPlaceholder:"ابحث بالاسم، الكود أو التحليل...", sar:"ريال", tests:"تحليل", viewDetails:"عرض التفاصيل", fastingRequired:"يتطلب صيام", noFasting:"بدون صيام", targetGroup:"الفئة المستهدفة", precautions:"الاحتياطات", includedTests:"التحاليل المشمولة", scanAtLab:"امسح الكود", clickToEnlarge:"انقر للتكبير", all:"الكل", men:"الرجل", women:"المرأة", children:"الأطفال", weightLoss:"التنحيف", skinBeauty:"الجمال", chronicDisease:"المزمنة", vitamins:"الفيتامينات", noResults:"لا توجد باقات", filters:"فلاتر", clearFilters:"مسح", priceRange:"السعر", min:"الحد الأدنى", max:"الأعلى", featured:"باقات مميزة", heroTitle:"تحاليل دقيقة", heroSubtitle:"باقات شاملة لجميع الاحتياجات الصحية", footerText:"© 2026 باقات الصحة", madeBy:"صنع بواسطة", area:"المنطقة", testFilter:"فلترة حسب التحليل", testPlaceholder:"مثال: LDL, HDL", backToHome:"العودة للرئيسية", glossaryTitle:"دليل التحاليل السريرية", glossarySubtitle:"مرجع كامل مع تفاصيل دقيقة والنطاقات المرجعية" } };
+        const translations = { en:{ logo:"Health Packages", home:"Home", packages:"Packages", glossary:"Test Glossary", preparation:"Prep Guide", langSwitch:"العربية", searchPlaceholder:"Search name, code or test...", sar:"SAR", tests:"tests", viewDetails:"View Details", fastingRequired:"Fasting", noFasting:"Non-fasting", targetGroup:"Target Group", precautions:"Precautions", includedTests:"Tests included", scanAtLab:"Scan at lab", clickToEnlarge:"Click to enlarge", all:"All", men:"Men's", women:"Women's", children:"Children", weightLoss:"Weight Loss", skinBeauty:"Beauty", chronicDisease:"Chronic", vitamins:"Vitamins", noResults:"No packages match", filters:"Filters", clearFilters:"Clear", priceRange:"Price", min:"Min", max:"Max", featured:"Featured Packages", heroTitle:"Precision Lab Testing", heroSubtitle:"Comprehensive packages for every health need.", footerText:"© 2026 Health Packages", madeBy:"Made by", area:"Area", testFilter:"Filter by Test", testPlaceholder:"e.g., LDL, HDL, TSH", backToHome:"Back to Home", glossaryTitle:"Clinical Laboratory Test Directory", glossarySubtitle:"Complete reference with detailed descriptions, reference ranges, and clinical significance", isoCertified:"ISO Certified" }, ar:{ logo:"باقات الصحة", home:"الرئيسية", packages:"الباقات", glossary:"قاموس التحاليل", preparation:"دليل التحضير", langSwitch:"English", searchPlaceholder:"ابحث بالاسم، الكود أو التحليل...", sar:"ريال", tests:"تحليل", viewDetails:"عرض التفاصيل", fastingRequired:"يتطلب صيام", noFasting:"بدون صيام", targetGroup:"الفئة المستهدفة", precautions:"الاحتياطات", includedTests:"التحاليل المشمولة", scanAtLab:"امسح الكود", clickToEnlarge:"انقر للتكبير", all:"الكل", men:"الرجل", women:"المرأة", children:"الأطفال", weightLoss:"التنحيف", skinBeauty:"الجمال", chronicDisease:"المزمنة", vitamins:"الفيتامينات", noResults:"لا توجد باقات", filters:"فلاتر", clearFilters:"مسح", priceRange:"السعر", min:"الحد الأدنى", max:"الأعلى", featured:"باقات مميزة", heroTitle:"تحاليل دقيقة", heroSubtitle:"باقات شاملة لجميع الاحتياجات الصحية", footerText:"© 2026 باقات الصحة", madeBy:"صنع بواسطة", area:"المنطقة", testFilter:"فلترة حسب التحليل", testPlaceholder:"مثال: LDL, HDL", backToHome:"العودة للرئيسية", glossaryTitle:"دليل التحاليل السريرية", glossarySubtitle:"مرجع كامل مع تفاصيل دقيقة والنطاقات المرجعية", isoCertified:"معتمدة وفق ISO Certified" } };
         
         let currentLang = 'en', currentView = 'home';
         let filters = { category:'all', prep:'all', minPrice:'', maxPrice:'', search:'', testKeyword:'' };
@@ -354,7 +361,7 @@
                             <div class="accordion-content px-5 pb-5">
                                 <div class="prose max-w-none">
                                     <div class="mb-4 p-4 bg-blue-50/40 rounded-xl">
-                                        <p class="text-gray-700 leading-relaxed">${g.description[currentLang === 'ar' ? 'ar' : 'en'] || g.description.en}</p>
+                                        <p class="text-gray-700 leading-relaxed">${g.description}</p>
                                     </div>
                                     <div class="grid md:grid-cols-2 gap-4 mt-3">
                                         <div class="reference-range">
@@ -425,9 +432,27 @@
             document.getElementById('app-content').innerHTML = `
             <section class="max-w-7xl mx-auto px-5 py-12 lg:py-20">
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <div><h1 class="text-4xl lg:text-5xl font-bold mt-2 leading-tight">${t().heroTitle}</h1><p class="text-muted-foreground text-lg mt-4">${t().heroSubtitle}</p>
-                    <div class="flex flex-col sm:flex-row gap-3 mt-8"><input type="text" id="hero-search" placeholder="${t().searchPlaceholder}" class="input flex-1"><button onclick="heroSearch()" class="btn-primary">${t().packages}</button></div></div>
-                    <div class="relative"><img src="https://nctaindia.in/images/course/lab.jpg" class="rounded-3xl shadow-xl object-cover h-80 w-full border-4 border-white" alt="Modern medical laboratory"></div>
+                    <div>
+                        <h1 class="text-4xl lg:text-5xl font-bold mt-2 leading-tight">${t().heroTitle}</h1>
+                        <p class="text-muted-foreground text-lg mt-4">${t().heroSubtitle}</p>
+                        <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                            <input type="text" id="hero-search" placeholder="${t().searchPlaceholder}" class="input flex-1">
+                            <button onclick="heroSearch()" class="btn-primary">${t().packages}</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="relative">
+                            <img src="https://nctaindia.in/images/course/lab.jpg" class="rounded-3xl shadow-xl object-cover h-80 w-full border-4 border-white" alt="Modern medical laboratory">
+                        </div>
+                        <!-- ISO Certified Badge placed below the image -->
+                        <div class="mt-5 flex justify-center">
+                            <div class="iso-cert-badge bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-md border border-gray-200 flex items-center gap-3 transition-all duration-200">
+                                <i data-lucide="microscope" class="w-6 h-6 text-primary"></i>
+                                <span class="font-bold text-primary text-sm md:text-base">${t().isoCertified}</span>
+                                <i data-lucide="badge-check" class="w-5 h-5 text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mt-16">${Object.entries(categoryConfig).map(([key,val])=>`<button onclick="showView('packages','${key}')" class="bg-white rounded-2xl p-5 text-center border hover:border-primary/30 transition shadow-sm"><div class="icon-bg ${val.class} w-12 h-12 mx-auto mb-3 flex items-center justify-center rounded-2xl"><i data-lucide="${val.icon}" class="w-6 h-6"></i></div><span class="font-medium">${t()[key.toLowerCase().replace(' ','')]||key}</span></button>`).join('')}</div>
                 <div class="mt-20"><h2 class="text-2xl font-bold">${t().featured}</h2><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">${packages.slice(0,4).map(p=>renderPackageCard(p)).join('')}</div></div>
