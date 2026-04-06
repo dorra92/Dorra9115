@@ -1,790 +1,214 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" id="html-root">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DMSCO Health Packages</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: 'hsl(156, 31%, 25%)', foreground: 'hsl(40, 20%, 97%)' },
-                        secondary: { DEFAULT: 'hsl(28, 53%, 64%)', foreground: 'hsl(0, 0%, 100%)' },
-                        muted: { DEFAULT: 'hsl(40, 14%, 94%)', foreground: 'hsl(165, 4%, 45%)' },
-                        accent: { DEFAULT: 'hsl(40, 14%, 94%)', foreground: 'hsl(165, 11%, 12%)' },
-                        background: 'hsl(40, 20%, 97%)',
-                        foreground: 'hsl(165, 11%, 12%)',
-                        card: 'hsl(0, 0%, 100%)',
-                        border: 'hsl(40, 10%, 85%)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        :root {
-            --primary: hsl(156, 31%, 25%);
-            --primary-foreground: hsl(40, 20%, 97%);
-            --secondary: hsl(28, 53%, 64%);
-            --background: hsl(40, 20%, 97%);
-            --foreground: hsl(165, 11%, 12%);
-            --muted: hsl(40, 14%, 94%);
-            --muted-foreground: hsl(165, 4%, 45%);
-            --card: hsl(0, 0%, 100%);
-            --border: hsl(40, 10%, 85%);
-        }
-        
-        body { font-family: 'Outfit', sans-serif; background-color: var(--background); color: var(--foreground); margin: 0; }
-        [dir="rtl"] body { font-family: 'Cairo', sans-serif; }
-        [dir="rtl"] { text-align: right; }
-        
-        /* Glassmorphism */
-        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-        
-        /* Animations */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
-        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        .stagger-1 { animation-delay: 0.1s; } .stagger-2 { animation-delay: 0.2s; } .stagger-3 { animation-delay: 0.3s; }
-        .stagger-4 { animation-delay: 0.4s; } .stagger-5 { animation-delay: 0.5s; } .stagger-6 { animation-delay: 0.6s; }
-        
-        /* Card hover */
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(44, 85, 69, 0.15); }
-        
-        /* Barcode */
-        .barcode-container { background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border-bottom: 1px dashed var(--border); }
-        .barcode-container:hover { background: linear-gradient(180deg, #f0f9f4 0%, #ffffff 100%); }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--muted); }
-        ::-webkit-scrollbar-thumb { background: rgba(44, 85, 69, 0.3); border-radius: 4px; }
-        
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; visibility: hidden; transition: all 0.3s; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: white; border-radius: 16px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s; }
-        .modal-overlay.active .modal-content { transform: scale(1); }
-        
-        /* Accordion */
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .accordion-item.open .accordion-content { max-height: 500px; }
-        .accordion-item.open .accordion-icon { transform: rotate(180deg); }
-        
-        /* Tabs */
-        .tab-btn { padding: 12px 24px; border-radius: 8px; font-weight: 500; transition: all 0.2s; }
-        .tab-btn.active-fasting { background: #fef3c7; color: #92400e; }
-        .tab-btn.active-nonfasting { background: #d1fae5; color: #065f46; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* Buttons */
-        .btn-primary { background: var(--primary); color: var(--primary-foreground); padding: 10px 20px; border-radius: 8px; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 500; transition: all 0.2s; cursor: pointer; }
-        .btn-outline:hover { background: var(--muted); }
-        .btn-ghost { background: transparent; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; }
-        .btn-ghost:hover { background: var(--muted); }
-        .btn-ghost.active { background: rgba(44, 85, 69, 0.1); color: var(--primary); }
-        
-        /* Badge */
-        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
-        .badge-outline { border: 1px solid var(--border); background: white; }
-        .badge-amber { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .badge-green { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        
-        /* Form elements */
-        .input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 14px; transition: all 0.2s; }
-        .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(44, 85, 69, 0.1); }
-        .select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 14px; cursor: pointer; }
-        
-        /* Category colors */
-        .cat-men { background: rgba(59, 130, 246, 0.1); color: #1d4ed8; }
-        .cat-women { background: rgba(244, 63, 94, 0.1); color: #be123c; }
-        .cat-children { background: rgba(16, 185, 129, 0.1); color: #047857; }
-        .cat-weight { background: rgba(249, 115, 22, 0.1); color: #c2410c; }
-        .cat-skin { background: rgba(236, 72, 153, 0.1); color: #be185d; }
-        .cat-chronic { background: rgba(239, 68, 68, 0.1); color: #b91c1c; }
-        .cat-vitamins { background: rgba(245, 158, 11, 0.1); color: #b45309; }
-        
-        .icon-gradient-men { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .icon-gradient-women { background: linear-gradient(135deg, #f43f5e, #e11d48); }
-        .icon-gradient-children { background: linear-gradient(135deg, #10b981, #059669); }
-        .icon-gradient-weight { background: linear-gradient(135deg, #f97316, #ea580c); }
-        .icon-gradient-skin { background: linear-gradient(135deg, #ec4899, #db2777); }
-        .icon-gradient-chronic { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .icon-gradient-vitamins { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        
-        /* Line clamp */
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        /* Hide/Show */
-        .hidden { display: none !important; }
-        
-        /* Mobile menu */
-        .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .mobile-menu.open { max-height: 300px; }
+      :root { --primary-blue: #004a99; --accent-gold: #d4af37; --medical-white: #f8f9fa; --male-blue: #004a99; --female-pink: #e11d48; --child-green: #10b981; }
+      body { font-family: 'Inter', sans-serif; background-color: var(--medical-white); color: #333; }
+      [dir="rtl"] { font-family: 'Cairo', sans-serif; }
+      .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      .navbar-brand, .nav-link { color: white !important; }
+      .btn-gold { background-color: var(--accent-gold); color: white; border: none; transition: 0.3s; }
+      .btn-gold:hover { background-color: #b8962d; color: white; transform: translateY(-2px); }
+      .card-package { border: none; border-radius: 16px; transition: all 0.3s ease; height: 100%; cursor: pointer; overflow: hidden; background: white; border: 1px solid rgba(0,0,0,0.05); }
+      .card-package:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0, 74, 153, 0.12); border-color: var(--primary-blue); }
+      .barcode-wrapper { background: #f8fafc; padding: 12px; text-align: center; border-bottom: 1px dashed #e2e8f0; transition: background 0.3s; cursor: zoom-in; position: relative; }
+      .barcode-wrapper:hover { background: #eff6ff; }
+      .barcode-img { height: 35px; width: auto; mix-blend-mode: multiply; filter: grayscale(100%) opacity(0.6); transition: 0.3s; }
+      .card-package:hover .barcode-img { filter: grayscale(0%) opacity(1); }
+      .code-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #94a3b8; margin-top: 4px; letter-spacing: 2px; }
+      .cat-card { border-radius: 20px; border: 2px solid transparent; transition: all 0.3s ease; background: white; cursor: pointer; height: 100%; }
+      .cat-card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+      .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+      .price-tag { color: var(--primary-blue); font-weight: 700; font-size: 1.3rem; }
+      .sidebar { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 90px; }
+      .hero-section { background: linear-gradient(135deg, var(--primary-blue) 0%, #0066cc 100%); color: white; padding: 60px 0; margin-bottom: 40px; }
+      .test-badge { background-color: #e7f1ff; color: var(--primary-blue); border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; margin: 2px; display: inline-block; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
+      .test-badge:hover { background-color: var(--primary-blue); color: white; }
+      .signature-text { color: #adb5bd; font-size: 0.85rem; }
     </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50 border-b border-gray-200/50" id="header">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <a href="#" onclick="showView('home')" class="flex items-center gap-2 text-primary font-semibold text-xl tracking-tight hover:opacity-80 transition-opacity">
-                    <i data-lucide="heart" class="w-7 h-7 fill-primary/20"></i>
-                    <span id="logo-text">DMSCO Health</span>
-                </a>
-                
-                <nav class="hidden md:flex items-center gap-1" id="desktop-nav"></nav>
-                
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleLanguage()" class="btn-outline flex items-center gap-1 text-sm" id="lang-btn">
-                        <i data-lucide="globe" class="w-4 h-4"></i>
-                        <span id="lang-text">العربية</span>
-                    </button>
-                    <button onclick="toggleMobileMenu()" class="btn-ghost md:hidden" id="mobile-menu-btn">
-                        <i data-lucide="menu" class="w-5 h-5" id="menu-icon"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <nav class="mobile-menu md:hidden border-t border-gray-200/50" id="mobile-nav"></nav>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#" id="nav-logo">DMSCO Health</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item"><a class="nav-link" href="#" id="nav-home">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#packages" id="nav-packages">Packages</a></li>
+            <li class="nav-item"><a class="nav-link" href="#glossary" id="nav-glossary">Glossary</a></li>
+            <li class="nav-item"><a class="nav-link" href="#prep" id="nav-prep">Preparation</a></li>
+            <li class="nav-item ms-lg-3"><button class="btn btn-outline-light btn-sm" id="lang-btn">العربية</button></li>
+          </ul>
         </div>
-    </header>
-    
-    <!-- Main Content -->
-    <main id="app-content"></main>
-    
-    <!-- Footer -->
-    <footer class="bg-foreground text-white py-12 mt-16" id="footer">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div class="flex items-center justify-center gap-2 mb-4">
-                <i data-lucide="heart" class="w-6 h-6 fill-secondary/50"></i>
-                <span class="font-semibold text-xl" id="footer-logo">DMSCO Health</span>
-            </div>
-            <p class="text-white/70 mb-6" id="footer-text">© 2026 DMSCO Health. All rights reserved.</p>
-            <div class="border-t border-white/10 pt-6 mt-6">
-                <p class="text-sm text-white/50"><span id="made-by-text">Made by</span>: <span class="font-medium text-white/70">Mohamed Salah Dorra - 9115</span></p>
-                <p class="text-sm text-white/50 mt-1"><span id="area-text">Area</span>: <span class="font-medium text-white/70">Jubail</span></p>
-            </div>
+      </div>
+    </nav>
+
+    <div id="app-content"></div>
+
+    <footer class="bg-dark text-white py-5 mt-5">
+      <div class="container text-center">
+        <p id="footer-text" class="mb-4">&copy; 2026 DMSCO Health. All rights reserved.</p>
+        <hr class="border-secondary w-25 mx-auto mb-4">
+        <div class="signature-text">
+            <p class="mb-1">Made by: <strong>Mohamed Salah Dorra - 9115</strong></p>
+            <p class="mb-0">Area: <strong>Jubail</strong></p>
         </div>
+      </div>
     </footer>
-    
-    <!-- Package Detail Modal -->
-    <div class="modal-overlay" id="package-modal" onclick="closeModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="p-6" id="modal-content"></div>
-        </div>
-    </div>
-    
-    <!-- Barcode Enlarged Modal -->
-    <div class="modal-overlay" id="barcode-modal" onclick="closeBarcodeModal(event)">
-        <div class="modal-content max-w-md" onclick="event.stopPropagation()">
-            <div class="p-8 text-center" id="barcode-content"></div>
-        </div>
-    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Data
-        const packages = [
-            { id: 1, code: "1000194", name: { en: "Men's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للرجل)" }, price: 349, testCount: 25, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "Urea", "Creatinine", "AST", "ALT", "Iron", "Ferritin", "Calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK"], precautions: { en: "Fasting 10-12 hours required.", ar: "يحتاج صيام 10-12 ساعة." }, targetGroup: { en: "Men for annual checkup.", ar: "الرجال للفحص السنوي." } },
-            { id: 2, code: "1000216", name: { en: "Men's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للرجل)" }, price: 599, testCount: 35, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "Urea", "Creatinine", "AST", "ALT", "Iron", "Ferritin", "Calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK", "Testosterone", "Prolactin", "PSA", "LH", "FSH", "Free T3", "Free T4", "HOMA-IR"], precautions: { en: "Fasting 10-12h. No exercise 24h before.", ar: "صيام 10-12 ساعة. تجنب الرياضة قبل 24 ساعة." }, targetGroup: { en: "Men, athletes, and fertility checkup.", ar: "الرجال، الرياضيين، وفحص الخصوبة." } },
-            { id: 3, code: "1000195", name: { en: "Women's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للمرأة)" }, price: 349, testCount: 25, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "Urea", "Creatinine", "AST", "ALT", "Iron", "Ferritin", "Calcium", "Vit D", "Vit B12", "Zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Women for annual checkup.", ar: "النساء للفحص السنوي." } },
-            { id: 4, code: "1000217", name: { en: "Women's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للمرأة)" }, price: 599, testCount: 35, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "Urea", "Creatinine", "AST", "ALT", "Iron", "Ferritin", "Calcium", "Vit D", "Vit B12", "Zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus", "Prolactin", "FSH", "LH", "FT3", "FT4", "GGT", "Alk Phosphatase", "HOMA-IR"], precautions: { en: "Fasting 10-12h. FSH/LH timing matters.", ar: "صيام 10-12 ساعة. توقيت الهرمونات مهم." }, targetGroup: { en: "Women, hormonal health.", ar: "النساء، الصحة الهرمونية." } },
-            { id: 5, code: "1000196", name: { en: "Children's Health Package", ar: "باقة نهتم بصحة طفلك" }, price: 399, testCount: 16, category: "Children", tests: ["CBC", "Iron", "Ferritin", "Ca", "Vitamin D", "Stool analysis", "AST", "ALP", "GGT", "ALT", "Creat", "Urea", "CRP", "FBS", "TSH", "Zinc"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Children 1-12 years.", ar: "الأطفال من 1-12 سنة." } },
-            { id: 6, code: "1000197", name: { en: "Hair And Beauty Package", ar: "باقة نهتم بجمالك" }, price: 249, testCount: 8, category: "Skin/Beauty", tests: ["CBC", "TSH", "Vit D", "Iron", "Ferritin", "Zinc", "B12", "Magnesium"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Hair loss/Dry skin concerns.", ar: "تساقط الشعر أو جفاف البشرة." } },
-            { id: 7, code: "1000198", name: { en: "Pre-Weight Loss (Mounjaro/Ozempic) - Him", ar: "باقة إبر التنحيف له" }, price: 299, testCount: 20, category: "Weight Loss", tests: ["CBC", "Cholesterol", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "Uric acid"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Men starting weight loss injections.", ar: "الرجال المخططون لإبر التنحيف." } },
-            { id: 8, code: "1000202", name: { en: "Pre-Weight Loss (Mounjaro/Ozempic) - Her", ar: "باقة إبر التنحيف لها" }, price: 299, testCount: 21, category: "Weight Loss", tests: ["CBC", "Cholesterol", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "Uric acid", "Pregnancy Test"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Women starting weight loss injections.", ar: "النساء المخططات لإبر التنحيف." } },
-            { id: 9, code: "1000203", name: { en: "Post Weight Loss Monitoring", ar: "باقة أثناء استخدام إبر التنحيف" }, price: 549, testCount: 25, category: "Weight Loss", tests: ["CBC", "Lipid Profile", "Liver Functions", "Kidney Functions", "Amylase", "Lipase", "Na", "K", "Cl", "GGT", "HbA1C", "Folic Acid", "Magnesium"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Monitoring current injection users.", ar: "متابعة مستخدمي الإبر الحاليين." } },
-            { id: 10, code: "1000208", name: { en: "Vitamin D Analysis", ar: "تحليل فيتامين د" }, price: 159, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc"], precautions: { en: "No fasting required.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Bone health assessment.", ar: "تقييم صحة العظام." } },
-            { id: 11, code: "1000215", name: { en: "In Lab Vitamin D Analysis", ar: "تحليل فيتامين د بالمختبر" }, price: 49, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc"], precautions: { en: "No fasting required.", ar: "لا يحتاج صيام." }, targetGroup: { en: "General checkup.", ar: "فحص عام." } },
-            { id: 12, code: "1000204", name: { en: "Diabetes Early Detection", ar: "باقة الكشف المبكر للسكري" }, price: 199, testCount: 6, category: "Chronic Disease", tests: ["FBS", "HbA1c", "Cholesterol", "Triglyceride", "HDL", "LDL"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Diabetes screening.", ar: "فحص السكري." } },
-            { id: 13, code: "1000218", name: { en: "Vitamins & Minerals (Basic)", ar: "باقة الفيتامينات والمعادن الأساسية" }, price: 299, testCount: 10, category: "Vitamins", tests: ["Vit D", "B12", "Iron", "Ferritin", "Ca", "Mg", "Zinc", "Na", "K", "Phosphorus"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "General fatigue & weakness.", ar: "التعب العام والضعف." } },
-            { id: 14, code: "1000219", name: { en: "Vitamins & Minerals (Platinum)", ar: "باقة الفيتامينات والمعادن البلاتينية" }, price: 999, testCount: 17, category: "Vitamins", tests: ["Vit D", "B12", "Vit B1", "Vit B2", "Vit B6", "Vit B9", "Vit A", "Vit C", "Vit E", "Ca", "Mg", "Zinc", "Na", "K", "Phosphorus", "Iron", "Ferritin"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Comprehensive nutritional evaluation.", ar: "تقييم غذائي شامل." } },
-            { id: 15, code: "1000220", name: { en: "Acne Follow-up Package", ar: "باقة متابعة علاج حب الشباب" }, price: 209, testCount: 9, category: "Skin/Beauty", tests: ["CBC", "Cholesterol", "HDL", "LDL", "Triglyceride", "Urea", "Creat", "AST", "ALT"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Isotretinoin (Roaccutane) users.", ar: "مستخدمي الروأكيوتان." } },
-            { id: 16, code: "1000221", name: { en: "Colon Health Package", ar: "باقة صحة القولون" }, price: 499, testCount: 4, category: "Chronic Disease", tests: ["Calprotectin", "CBC", "FIT", "H pylori Stool Ag"], precautions: { en: "No antibiotics 2 weeks prior.", ar: "يمنع المضاد الحيوي قبل أسبوعين." }, targetGroup: { en: "Colon & digestive health.", ar: "صحة القولون والجهاز الهضمي." } },
-            { id: 17, code: "1000222", name: { en: "H. Pylori (Breath Test)", ar: "باقة فحص جرثومة المعدة بالتنفس" }, price: 199, testCount: 1, category: "Chronic Disease", tests: ["Urea Breath Test"], precautions: { en: "Fasting 6h.", ar: "صيام 6 ساعات." }, targetGroup: { en: "Stomach issues.", ar: "مشاكل المعدة." } },
-            { id: 18, code: "1000223", name: { en: "Celiac (Gluten) Package", ar: "باقة التحسس من الغلوتين" }, price: 499, testCount: 5, category: "Chronic Disease", tests: ["IgA", "tTG IgA", "tTG IgG", "Antigliadin IgA", "Antigliadin IgG"], precautions: { en: "No fasting required.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Gluten sensitivity screening.", ar: "فحص حساسية الغلوتين." } },
-            { id: 19, code: "1000224", name: { en: "In Lab Basic Diabetic Package", ar: "باقة السكري الأساسية بالمختبر" }, price: 49, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting required.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar level monitoring.", ar: "متابعة مستوى السكر." } },
-            { id: 20, code: "1000225", name: { en: "Basic Diabetic Package", ar: "باقة السكري الأساسية" }, price: 109, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting required.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar level monitoring.", ar: "متابعة مستوى السكر." } }
-        ];
+      // --- DATA ---
+      const packages = [
+        { id: 1, code: "1000194", name: { en: "Men's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للرجل)" }, price: 349, testCount: 25, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK"], precautions: { en: "Fasting 10-12 hours required. Water is allowed.", ar: "يحتاج صيام 10-12 ساعة. مسموح شرب الماء." }, targetGroup: { en: "Men for annual health check.", ar: "الرجال للفحص السنوي." } },
+        { id: 2, code: "1000216", name: { en: "Men's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للرجل)" }, price: 599, testCount: 35, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK", "Testosterone", "Prolactin", "PSA", "LH", "FSH", "free T3", "free T4", "HOMA-IR"], precautions: { en: "Fasting 10-12h. Abstain from sexual activity/exercise.", ar: "صيام 10-12 ساعة. تجنب الجماع والرياضة قبلها." }, targetGroup: { en: "Silver + Fertility & Prostate check.", ar: "الفضية + فحص الخصوبة والبروستاتا." } },
+        { id: 3, code: "1000195", name: { en: "Women's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للمرأة)" }, price: 349, testCount: 25, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus"], precautions: { en: "Fasting 10-12h. Water allowed.", ar: "صيام 10-12 ساعة. مسموح الماء." }, targetGroup: { en: "Women checking health or hair loss.", ar: "النساء للفحص السنوي أو تساقط الشعر." } },
+        { id: 4, code: "1000217", name: { en: "Women's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للمرأة)" }, price: 599, testCount: 35, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus", "Prolactin", "FSH", "LH", "FT3", "FT4", "GGT", "Alk Phosphatase", "HOMA-IR"], precautions: { en: "Fasting 10-12h. FSH/LH timing required.", ar: "صيام 10-12 ساعة. توقيت الهرمونات مهم." }, targetGroup: { en: "Silver + Fertility & Metabolic check.", ar: "الفضية + فحص الخصوبة والأيض." } },
+        { id: 5, code: "1000196", name: { en: "Children's Health Package", ar: "باقة نهتم بصحة طفلك" }, price: 399, testCount: 16, category: "Children", tests: ["CBC", "Iron", "Ferritin", "Ca", "Vitamin D", "Stool analysis", "AST", "ALP", "GGT", "ALT", "Creat", "Urea", "CRP", "FBS", "TSH", "Zinc"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Children 1-12 years.", ar: "الأطفال من 1-12 سنة." } },
+        { id: 6, code: "1000197", name: { en: "Hair And Beauty Package", ar: "باقة نهتم بجمالك" }, price: 249, testCount: 8, category: "Skin/Beauty", tests: ["CBC", "TSH", "Vit D", "Iron", "Ferritin", "Zinc", "B12", "Magnesium"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Hair loss or dry skin.", ar: "تساقط الشعر أو جفاف البشرة." } },
+        { id: 7, code: "1000198", name: { en: "Weight Loss Injection (Ozempic) - Him", ar: "باقة إبر التنحيف له" }, price: 299, testCount: 20, category: "Weight Loss", tests: ["CBC", "Cholesterol", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "Uric acid"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Men using Mounjaro/Ozempic.", ar: "الرجال مستخدمو إبر التنحيف." } },
+        { id: 8, code: "1000202", name: { en: "Weight Loss Injection (Ozempic) - Her", ar: "باقة إبر التنحيف لها" }, price: 299, testCount: 21, category: "Weight Loss", tests: ["CBC", "Cholesterol", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "Uric acid", "Pregnancy Test"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Women using Mounjaro/Ozempic.", ar: "النساء مستخدمات إبر التنحيف." } },
+        { id: 9, code: "1000203", name: { en: "Post Weight Loss Monitoring", ar: "باقة أثناء استخدام إبر التنحيف" }, price: 549, testCount: 25, category: "Weight Loss", tests: ["CBC", "Lipid Profile", "Liver/Kidney Functions", "Amylase", "Lipase", "Electrolytes", "GGT", "HbA1C", "Folic Acid"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Monitoring health during diet.", ar: "متابعة الصحة أثناء الحمية." } },
+        { id: 10, code: "1000208", name: { en: "Vitamin D Analysis", ar: "تحليل فيتامين د" }, price: 159, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Bone pain check.", ar: "فحص آلام العظام." } },
+        { id: 11, code: "1000215", name: { en: "In Lab Vitamin D Analysis", ar: "تحليل فيتامين د بالمختبر" }, price: 49, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "General Vit D check.", ar: "تحليل عام." } },
+        { id: 12, code: "1000204", name: { en: "Diabetes Early Detection", ar: "باقة الكشف المبكر للسكري" }, price: 199, testCount: 6, category: "Chronic Disease", tests: ["FBS", "HbA1c", "Cholesterol", "Triglyceride", "HDL", "LDL"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Diabetes screening.", ar: "الكشف عن السكر." } },
+        { id: 13, code: "1000218", name: { en: "Vitamins & Minerals (Basic)", ar: "باقة الفيتامينات والمعادن األساسية" }, price: 299, testCount: 10, category: "Vitamins", tests: ["Vit D", "B12", "Iron", "Ferritin", "Ca", "Mg", "Zinc", "Na", "K", "Phosphorus"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "General fatigue.", ar: "التعب العام." } },
+        { id: 14, code: "1000219", name: { en: "Vitamins & Minerals (Platinum)", ar: "باقة الفيتامينات والمعادن البالتينية" }, price: 999, testCount: 17, category: "Vitamins", tests: ["Basic tests", "Vit B1", "Vit B2", "Vit B6", "Vit B9", "Vit A", "Vit C", "Vit E"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Full evaluation.", ar: "تقييم كامل." } },
+        { id: 15, code: "1000220", name: { en: "Acne Follow-up Package", ar: "باقة متابعة عالج حب الشباب" }, price: 209, testCount: 9, category: "Skin/Beauty", tests: ["CBC", "Cholesterol", "HDL", "LDL", "Triglyceride", "urea", "creat", "AST", "ALT"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Isotretinoin users.", ar: "مستخدمي الروأكيوتان." } },
+        { id: 16, code: "1000221", name: { en: "Colon Health Package", ar: "باقة صحة القولون" }, price: 499, testCount: 4, category: "Chronic Disease", tests: ["Calprotectin", "CBC", "FIT", "H pylori Stool Ag"], precautions: { en: "No antibiotics.", ar: "يمنع المضاد الحيوي." }, targetGroup: { en: "Colon health.", ar: "صحة القولون." } },
+        { id: 17, code: "1000222", name: { en: "H. Pylori (Breath Test)", ar: "باقة فحص جرثومة المعدة بالتنفس" }, price: 199, testCount: 1, category: "Chronic Disease", tests: ["Urea Breath Test"], precautions: { en: "Fasting 6h.", ar: "صيام 6 ساعات." }, targetGroup: { en: "Stomach pain.", ar: "آلام المعدة." } },
+        { id: 18, code: "1000223", name: { en: "Celiac (Gluten) Package", ar: "باقة التحسس من الغلوتين" }, price: 499, testCount: 5, category: "Chronic Disease", tests: ["IgA", "tTG IgA", "tTG IgG", "Antigliadin"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Gluten issues.", ar: "مشاكل الغلوتين." } },
+        { id: 19, code: "1000224", name: { en: "In Lab Basic Diabetic Package", ar: "باقة السكري األساسية بالمختبر" }, price: 49, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar control.", ar: "متابعة السكر." } },
+        { id: 20, code: "1000225", name: { en: "Basic Diabetic Package", ar: "باقة السكري األساسية" }, price: 109, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar control.", ar: "متابعة السكر." } }
+      ];
 
-        const glossary = [
-            { name: "CBC", description: { en: "Complete Blood Count: Measures red cells, white cells, and platelets for anemia/infection detection.", ar: "عد الدم الكامل: فحص فقر الدم والعدوى." } },
-            { name: "FBS", description: { en: "Fasting Blood Sugar: Key indicator for diabetes screening.", ar: "سكر الدم الصائم: مؤشر رئيسي للسكري." } },
-            { name: "RBS", description: { en: "Random Blood Sugar: Checks current glucose level.", ar: "سكر الدم العشوائي: يفحص مستوى السكر الحالي." } },
-            { name: "HbA1c", description: { en: "Glycated hemoglobin - Average blood sugar over the last 3 months.", ar: "السكر التراكمي لآخر 3 أشهر." } },
-            { name: "AST / ALT", description: { en: "Liver enzymes that identify damage or inflammation.", ar: "إنزيمات الكبد للكشف عن سلامة وظائفه." } },
-            { name: "Urea / Creatinine", description: { en: "Kidney function markers - filtering waste from blood.", ar: "وظائف الكلى: تقييم كفاءة الكليتين." } },
-            { name: "eGFR", description: { en: "Estimated Glomerular Filtration Rate: Measures kidney efficiency.", ar: "معدل الترشيح الكلي: يقيس كفاءة الكلى." } },
-            { name: "Lipid Profile", description: { en: "Cholesterol, Triglycerides, HDL, LDL - Measures fats for heart health.", ar: "مستوى الدهون والكوليسترول لتقييم صحة القلب." } },
-            { name: "Vit D", description: { en: "Essential for bone strength, immunity, and mood regulation.", ar: "فيتامين د: ضروري للعظام والمناعة." } },
-            { name: "Vit B12", description: { en: "Crucial for nerve health and red blood cell production.", ar: "فيتامين ب12: مهم للأعصاب وخلايا الدم." } },
-            { name: "Minerals", description: { en: "Zinc, Magnesium, Ca, Phosphorus - Essential for metabolic functions.", ar: "معادن أساسية للأيض وصحة العظام." } },
-            { name: "Thyroid Panel", description: { en: "TSH, Free T3, Free T4 - Regulating metabolism and energy.", ar: "واسمات الغدة الدرقية لتنظيم الأيض." } },
-            { name: "HOMA-IR", description: { en: "Calculates insulin resistance levels.", ar: "تقييم مقاومة الأنسولين." } },
-            { name: "Male Hormones", description: { en: "Testosterone, PSA - Male hormonal health and prostate markers.", ar: "صحة الرجل الهرمونية والبروستاتا." } },
-            { name: "Fertility Hormones", description: { en: "LH, FSH, Prolactin - Fertility and pituitary function.", ar: "هرمونات الخصوبة والغدة النخامية." } },
-            { name: "Pancreatic Enzymes", description: { en: "Amylase, Lipase - Checked during weight loss treatments.", ar: "إنزيمات البنكرياس لمتابعة سلامته." } },
-            { name: "Gut Health", description: { en: "Calprotectin, FIT - Bowel inflammation and colon screening.", ar: "واسمات التهابات الأمعاء والقولون." } },
-            { name: "Celiac Markers", description: { en: "IgA, tTG, Antigliadin - Diagnostic for Celiac disease.", ar: "واسمات تشخيص حساسية الغلوتين." } },
-            { name: "Electrolytes", description: { en: "Na, K, Cl - Mineral balance in the blood.", ar: "الأملاح والشوارد: توازن المعادن." } },
-            { name: "CRP", description: { en: "C-Reactive Protein: General marker for inflammation.", ar: "بروتين يدل على وجود التهاب في الجسم." } },
-            { name: "CK", description: { en: "Creatine Kinase: Indicates muscle stress or heart health.", ar: "إنزيم يدل على إجهاد العضلات أو صحة القلب." } }
-        ];
+      const glossary = [
+        { name: "CBC", description: { en: "Complete Blood Count: Measures red cells, white cells, and platelets for anemia/infection.", ar: "عد الدم الكامل: فحص فقر الدم والعدوى." } },
+        { name: "FBS", description: { en: "Fasting Blood Sugar level.", ar: "مستوى سكر الدم الصائم." } },
+        { name: "RBS", description: { en: "Random Blood Sugar check.", ar: "فحص سكر الدم العشوائي." } },
+        { name: "HbA1c", description: { en: "Average sugar over 3 months.", ar: "السكر التراكمي لآخر 3 أشهر." } },
+        { name: "AST / ALT", description: { en: "Liver enzymes indicating health or damage.", ar: "إنزيمات الكبد للكشف عن سلامته." } },
+        { name: "Urea / Creatinine", description: { en: "Kidney function waste markers.", ar: "وظائف الكلى لتقييم كفاءتها." } },
+        { name: "Amylase / Lipase", description: { en: "Pancreas health markers.", ar: "إنزيمات صحة البنكرياس." } },
+        { name: "Vit D / B12", description: { en: "Bone and nerve vitamins.", ar: "فيتامينات العظام والأعصاب." } },
+        { name: "PSA", description: { en: "Prostate-Specific Antigen.", ar: "المستضد البروستاتي." } },
+        { name: "HOMA-IR", description: { en: "Insulin resistance measure.", ar: "تقييم مقاومة الأنسولين." } }
+      ];
 
-        const translations = {
-            en: {
-                logo: "DMSCO Health", tagline: "Your Wellness Journey Starts Here", heroTitle: "Comprehensive Health Packages",
-                heroSubtitle: "Expert laboratory testing tailored to your needs. Discover packages designed for men, women, and children.",
-                searchPlaceholder: "Search by name or code...", search: "Search", home: "Home", packages: "Packages",
-                glossary: "Test Glossary", preparation: "Preparation Guide", langSwitch: "العربية", viewAll: "View All Packages",
-                exploreCategories: "Explore Categories", men: "Men's Health", menDesc: "Comprehensive packages for men's wellness",
-                women: "Women's Health", womenDesc: "Specialized care for women's health", children: "Children's Health",
-                childrenDesc: "Gentle testing for young ones", weightLoss: "Weight Loss", weightLossDesc: "Pre & post treatment monitoring",
-                skinBeauty: "Skin & Beauty", skinBeautyDesc: "Hair, skin & beauty analysis", chronicDisease: "Chronic Disease",
-                chronicDiseaseDesc: "Diabetes, colon & digestive health", vitamins: "Vitamins & Minerals",
-                vitaminsDesc: "Nutritional deficiency screening", sar: "SAR", tests: "tests", viewDetails: "View Details",
-                fastingRequired: "Fasting Required", noFasting: "No Fasting", targetGroup: "Target Group", precautions: "Precautions",
-                includedTests: "Included Tests", scanAtLab: "Scan this barcode at the lab", filters: "Filters", clearFilters: "Clear",
-                category: "Category", all: "All Categories", prepType: "Preparation", complexity: "Complexity",
-                basic: "Basic (< 10 tests)", comprehensive: "Comprehensive (10+)", priceRange: "Price Range", min: "Min", max: "Max",
-                noResults: "No packages found matching your criteria", glossaryTitle: "Medical Test Glossary",
-                glossarySubtitle: "Understanding your test results", prepTitle: "Preparation Guide",
-                prepSubtitle: "How to prepare for your tests", fastingPackages: "Fasting Required",
-                nonFastingPackages: "No Fasting Required", footerText: "© 2026 DMSCO Health. All rights reserved.",
-                madeBy: "Made by", area: "Area", clickToEnlarge: "Click barcode to enlarge", featured: "Featured Packages",
-                whyChoose: "Why Choose DMSCO Health?", quality: "Quality Assured",
-                qualityDesc: "All tests performed with highest accuracy standards", fast: "Fast Results",
-                fastDesc: "Get your results quickly and securely", expert: "Expert Analysis",
-                expertDesc: "Interpreted by qualified professionals"
-            },
-            ar: {
-                logo: "ديمسكو للصحة", tagline: "رحلتك الصحية تبدأ من هنا", heroTitle: "باقات صحية شاملة",
-                heroSubtitle: "تحاليل مختبرية متخصصة مصممة لتناسب احتياجاتك. اكتشف باقات مخصصة للرجال والنساء والأطفال.",
-                searchPlaceholder: "ابحث بالاسم أو الكود...", search: "بحث", home: "الرئيسية", packages: "الباقات",
-                glossary: "قاموس التحاليل", preparation: "دليل التحضير", langSwitch: "English", viewAll: "عرض جميع الباقات",
-                exploreCategories: "استكشف الفئات", men: "صحة الرجل", menDesc: "باقات شاملة لصحة الرجال",
-                women: "صحة المرأة", womenDesc: "عناية متخصصة بصحة المرأة", children: "صحة الأطفال",
-                childrenDesc: "تحاليل لطيفة للصغار", weightLoss: "إنقاص الوزن", weightLossDesc: "متابعة قبل وبعد العلاج",
-                skinBeauty: "البشرة والجمال", skinBeautyDesc: "تحليل الشعر والبشرة والجمال", chronicDisease: "الأمراض المزمنة",
-                chronicDiseaseDesc: "السكري والقولون والجهاز الهضمي", vitamins: "الفيتامينات والمعادن",
-                vitaminsDesc: "فحص نقص التغذية", sar: "ريال", tests: "تحليل", viewDetails: "عرض التفاصيل",
-                fastingRequired: "يتطلب صيام", noFasting: "لا يتطلب صيام", targetGroup: "الفئة المستهدفة", precautions: "الاحتياطات",
-                includedTests: "التحاليل المشمولة", scanAtLab: "امسح هذا الكود في المختبر", filters: "الفلاتر", clearFilters: "مسح",
-                category: "الفئة", all: "جميع الفئات", prepType: "التحضير", complexity: "نوع الباقة",
-                basic: "أساسي (أقل من 10)", comprehensive: "شامل (10+)", priceRange: "نطاق السعر", min: "الحد الأدنى", max: "الحد الأقصى",
-                noResults: "لا توجد باقات تطابق معاييرك", glossaryTitle: "قاموس التحاليل الطبية",
-                glossarySubtitle: "فهم نتائج تحاليلك", prepTitle: "دليل التحضير",
-                prepSubtitle: "كيفية التحضير للتحاليل", fastingPackages: "يتطلب صيام",
-                nonFastingPackages: "لا يتطلب صيام", footerText: "© 2026 ديمسكو للصحة. جميع الحقوق محفوظة.",
-                madeBy: "صنع بواسطة", area: "المنطقة", clickToEnlarge: "انقر على الكود للتكبير", featured: "الباقات المميزة",
-                whyChoose: "لماذا تختار ديمسكو للصحة؟", quality: "جودة مضمونة",
-                qualityDesc: "جميع التحاليل بأعلى معايير الدقة", fast: "نتائج سريعة",
-                fastDesc: "احصل على نتائجك بسرعة وأمان", expert: "تحليل الخبراء",
-                expertDesc: "تفسير من قبل متخصصين مؤهلين"
-            }
-        };
+      let currentLang = 'en';
+      const translations = {
+        en: { logo: "DMSCO Health", home: "Home", packages: "Packages", glossary: "Glossary", prep: "Preparation", glossaryTitle: "Medical Glossary", prepTitle: "Visit Preparation", heroTitle: "Check and Be Reassured", heroSub: "Tailored health screenings for your well-being.", searchPlaceholder: "Search Name or Code...", filters: "Filters", clear: "Clear Filters", men: "Men", women: "Women", children: "Children", weight: "Weight Loss", skin: "Skin & Beauty", chronic: "Chronic Disease", vitamins: "Vitamins", sar: "SAR", tests: "Tests", details: "View Details", fastingReq: "Fasting Required", noFasting: "No Fasting", target: "Target Group", back: "Back", scan: "Zoom-to-Scan", complexity: "Complexity", all: "All", basic: "Basic (<10)", comp: "Comprehensive (10+)" },
+        ar: { logo: "دمسكو للصحة", home: "الرئيسية", packages: "الباقات", glossary: "قاموس التحاليل", prep: "دليل التحضير", glossaryTitle: "قاموس التحاليل الطبية", prepTitle: "دليل تحضيرات الزيارة", heroTitle: "افحص وتطمن", heroSub: "باقات فحص صحي احترافية مصممة خصيصاً لك.", searchPlaceholder: "ابحث بالاسم أو الكود...", filters: "الفلاتر", clear: "مسح الفلاتر", men: "الرجال", women: "النساء", children: "الأطفال", weight: "إنقاص الوزن", skin: "البشرة والجمال", chronic: "الأمراض المزمنة", vitamins: "الفيتامينات", sar: "ريال", tests: "تحليل", details: "عرض التفاصيل", fastingReq: "يتطلب صيام", noFasting: "لا يتطلب صيام", target: "الفئة المستهدفة", back: "العودة", scan: "تكبير للمسح", complexity: "نوع الباقة", all: "الكل", basic: "أساسي (أقل من 10)", comp: "شامل (أكثر من 10)" }
+      };
 
-        // State
-        let currentLang = 'en';
-        let currentView = 'home';
-        let filters = { category: 'all', prep: 'all', complexity: 'all', minPrice: '', maxPrice: '', search: '' };
+      function init() { renderHome(); setupEventListeners(); }
 
-        // Get translation
-        const t = () => translations[currentLang];
+      function closeMobileMenu() {
+        const nav = document.getElementById('navbarNav');
+        if (nav && nav.classList.contains('show')) bootstrap.Collapse.getOrCreateInstance(nav).hide();
+      }
 
-        // Category config
-        const categoryConfig = {
-            Men: { icon: 'users', catClass: 'cat-men', iconGradient: 'icon-gradient-men' },
-            Women: { icon: 'user', catClass: 'cat-women', iconGradient: 'icon-gradient-women' },
-            Children: { icon: 'baby', catClass: 'cat-children', iconGradient: 'icon-gradient-children' },
-            'Weight Loss': { icon: 'scale', catClass: 'cat-weight', iconGradient: 'icon-gradient-weight' },
-            'Skin/Beauty': { icon: 'sparkles', catClass: 'cat-skin', iconGradient: 'icon-gradient-skin' },
-            'Chronic Disease': { icon: 'activity', catClass: 'cat-chronic', iconGradient: 'icon-gradient-chronic' },
-            Vitamins: { icon: 'pill', catClass: 'cat-vitamins', iconGradient: 'icon-gradient-vitamins' }
-        };
+      function setupEventListeners() {
+        document.getElementById('lang-btn').addEventListener('click', toggleLanguage);
+        ['nav-logo', 'nav-home'].forEach(id => document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); renderHome(); closeMobileMenu(); }));
+        document.getElementById('nav-packages').addEventListener('click', (e) => { e.preventDefault(); renderPackages(); closeMobileMenu(); });
+        document.getElementById('nav-glossary').addEventListener('click', (e) => { e.preventDefault(); renderGlossary(); closeMobileMenu(); });
+        document.getElementById('nav-prep').addEventListener('click', (e) => { e.preventDefault(); renderPreparation(); closeMobileMenu(); });
+      }
 
-        // Initialize
-        function init() {
-            renderNav();
-            showView('home');
-            lucide.createIcons();
-        }
+      function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+        document.getElementById('html-root').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        document.getElementById('lang-btn').textContent = currentLang === 'en' ? 'العربية' : 'English';
+        const view = document.querySelector('[data-view]').getAttribute('data-view');
+        if (view === 'home') renderHome(); else if (view === 'packages') renderPackages(); else if (view === 'glossary') renderGlossary(); else renderPreparation();
+        closeMobileMenu();
+      }
 
-        // Toggle language
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.getElementById('html-root').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('html-root').lang = currentLang;
-            renderNav();
-            showView(currentView);
-            updateFooter();
-        }
+      function renderHome() {
+        const t = translations[currentLang];
+        document.getElementById('app-content').innerHTML = `
+          <div data-view="home">
+            <section class="hero-section text-center"><div class="container"><h1 class="display-4 fw-bold mb-3">${t.logo}</h1><p class="lead mb-4">${t.heroTitle}</p></div></section>
+            <div class="container py-5"><div class="row g-4 justify-content-center">
+              <div class="col-12 col-md-4"><div class="cat-card p-4 text-center" style="border-color: var(--male-blue);" onclick="renderPackages('', 'Men')"><div class="icon-circle" style="background: rgba(0,74,153,0.1); color: var(--male-blue);"><i data-lucide="users"></i></div><h3>${t.men}</h3></div></div>
+              <div class="col-12 col-md-4"><div class="cat-card p-4 text-center" style="border-color: var(--female-pink);" onclick="renderPackages('', 'Women')"><div class="icon-circle" style="background: rgba(225,29,72,0.1); color: var(--female-pink);"><i data-lucide="user-round"></i></div><h3>${t.women}</h3></div></div>
+              <div class="col-12 col-md-4"><div class="cat-card p-4 text-center" style="border-color: var(--child-green);" onclick="renderPackages('', 'Children')"><div class="icon-circle" style="background: rgba(16,185,129,0.1); color: var(--child-green);"><i data-lucide="baby"></i></div><h3>${t.children}</h3></div></div>
+            </div></div></div>`;
+        lucide.createIcons();
+      }
 
-        // Render navigation
-        function renderNav() {
-            const navItems = [
-                { id: 'home', label: t().home },
-                { id: 'packages', label: t().packages },
-                { id: 'glossary', label: t().glossary },
-                { id: 'preparation', label: t().preparation }
-            ];
+      function renderPackages(searchQuery = '', initialCategory = 'all') {
+        const t = translations[currentLang];
+        document.getElementById('app-content').innerHTML = `
+          <div data-view="packages" class="container py-5"><div class="row"><div class="col-lg-3"><div class="sidebar mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-4"><h5 class="fw-bold mb-0">${t.filters}</h5><button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="clearFilters()">${t.clear}</button></div>
+          <div class="mb-3"><label class="form-label small fw-bold">Category</label><select class="form-select" id="f-cat" onchange="applyFilters()"><option value="all">${t.all}</option><option value="Men" ${initialCategory==='Men'?'selected':''}>${t.men}</option><option value="Women" ${initialCategory==='Women'?'selected':''}>${t.women}</option><option value="Children" ${initialCategory==='Children'?'selected':''}>${t.children}</option><option value="Weight Loss" ${initialCategory==='Weight Loss'?'selected':''}>${t.weight}</option><option value="Skin/Beauty">${t.skin}</option><option value="Chronic Disease">${t.chronic}</option><option value="Vitamins">${t.vitamins}</option></select></div>
+          <div class="mb-3"><label class="form-label small fw-bold">Complexity</label><select class="form-select" id="f-tc" onchange="applyFilters()"><option value="all">${t.all}</option><option value="basic">${t.basic}</option><option value="comp">${t.comp}</option></select></div>
+          <div class="mb-3"><label class="form-label small fw-bold">Search</label><input type="text" id="f-name" class="form-control" oninput="applyFilters()" value="${searchQuery}" placeholder="Name or Code..."></div>
+          </div></div><div class="col-lg-9"><div class="row g-4" id="pkg-list"></div></div></div></div>`;
+        applyFilters();
+      }
 
-            document.getElementById('desktop-nav').innerHTML = navItems.map(item => 
-                `<button onclick="showView('${item.id}')" class="btn-ghost ${currentView === item.id ? 'active' : ''}">${item.label}</button>`
-            ).join('');
+      window.clearFilters = () => {
+        document.getElementById('f-cat').value = 'all'; document.getElementById('f-tc').value = 'all'; document.getElementById('f-name').value = ''; applyFilters();
+      };
 
-            document.getElementById('mobile-nav').innerHTML = `<div class="py-4 flex flex-col gap-1">
-                ${navItems.map(item => `<button onclick="showView('${item.id}'); toggleMobileMenu();" class="btn-ghost text-left w-full ${currentView === item.id ? 'active' : ''}">${item.label}</button>`).join('')}
-            </div>`;
+      function applyFilters() {
+        const cat = document.getElementById('f-cat').value; const tc = document.getElementById('f-tc').value; const nameQ = document.getElementById('f-name').value.toLowerCase();
+        const filtered = packages.filter(p => {
+          let mCat = cat === 'all' || p.category === cat;
+          if (cat === 'Men' && p.id === 7) mCat = true; if (cat === 'Women' && p.id === 8) mCat = true;
+          const mTC = tc === 'all' || (tc === 'basic' ? p.testCount < 10 : p.testCount >= 10);
+          return mCat && mTC && (p.name[currentLang].toLowerCase().includes(nameQ) || p.code.includes(nameQ));
+        });
+        const list = document.getElementById('pkg-list'); list.innerHTML = '';
+        filtered.forEach(p => {
+          const t = translations[currentLang]; const esc = p.name[currentLang].replace(/'/g, "\\'");
+          list.innerHTML += `<div class="col-md-6"><div class="card card-package shadow-sm" onclick="showPackageDetails(${p.id})"><div class="barcode-wrapper" onclick="event.stopPropagation(); enlargeBarcode('${p.code}', '${esc}')"><img class="barcode-img" src="https://barcodeapi.org/api/128/${p.code}"><div class="code-text">${p.code}</div></div><div class="card-body p-4"><div class="d-flex justify-content-between mb-2"><span class="badge bg-primary-subtle text-primary">${p.category}</span><span class="price-tag">${p.price} ${t.sar}</span></div><h5 class="fw-bold">${p.name[currentLang]}</h5><button class="btn btn-gold w-100 mt-auto">${t.details}</button></div></div></div>`;
+        });
+        lucide.createIcons();
+      }
 
-            document.getElementById('lang-text').textContent = t().langSwitch;
-            document.getElementById('logo-text').textContent = t().logo;
-        }
+      window.enlargeBarcode = (code, name) => {
+        Swal.fire({ title: name, html: `<div style="background:white; padding:40px 10px;"><p class="fw-bold text-primary mb-4">Scanner Ready</p><img style="width:100%; max-width:400px;" src="https://barcodeapi.org/api/128/${code}"><div style="font-family:'JetBrains Mono', monospace; font-size:2.5rem; letter-spacing:10px; margin-top:20px; color:black;">${code}</div></div>`, showConfirmButton: false, showCloseButton: true, width: '600px' });
+      };
 
-        // Update footer
-        function updateFooter() {
-            document.getElementById('footer-logo').textContent = t().logo;
-            document.getElementById('footer-text').textContent = t().footerText;
-            document.getElementById('made-by-text').textContent = t().madeBy;
-            document.getElementById('area-text').textContent = t().area;
-        }
+      window.showPackageDetails = (id) => {
+        const p = packages.find(pkg => pkg.id === id); const t = translations[currentLang]; const esc = p.name[currentLang].replace(/'/g, "\\'");
+        Swal.fire({
+          title: p.name[currentLang],
+          html: `<div class="text-start ${currentLang==='ar'?'text-end':''}">
+            <div class="text-center mb-4"><div class="barcode-wrapper p-3 d-inline-block border rounded" onclick="enlargeBarcode('${p.code}', '${esc}')"><img style="height:60px" src="https://barcodeapi.org/api/128/${p.code}"><div class="code-text fw-bold" style="font-size:1.1rem; color:var(--primary-blue)">${p.code}</div></div></div>
+            <p><strong>${t.target}:</strong> ${p.targetGroup[currentLang]}</p><p class="text-danger"><strong>Precautions:</strong> ${p.precautions[currentLang]}</p>
+            <div class="d-flex flex-wrap">${p.tests.map(test => `<span class="test-badge" onclick="showTestInfo('${test.replace(/'/g, "\\'")}', ${p.id})">${test}</span>`).join('')}</div>
+          </div>`, width: '700px', confirmButtonColor: '#004a99', showCloseButton: true
+        });
+      };
 
-        // Toggle mobile menu
-        function toggleMobileMenu() {
-            document.getElementById('mobile-nav').classList.toggle('open');
-        }
+      window.showTestInfo = (name, pId) => {
+        const n = name.toLowerCase(); const item = glossary.find(g => n.includes(g.name.toLowerCase()) || g.name.toLowerCase().includes(n));
+        Swal.fire({ title: item ? item.name : name, text: item ? item.description[currentLang] : "Diagnostic laboratory measurement.", icon: 'info', confirmButtonText: translations[currentLang].back, confirmButtonColor: '#004a99' }).then(() => showPackageDetails(pId));
+      };
 
-        // Show view
-        function showView(view, category = null) {
-            currentView = view;
-            if (category) filters.category = category;
-            renderNav();
-            
-            switch(view) {
-                case 'packages': renderPackages(); break;
-                case 'glossary': renderGlossary(); break;
-                case 'preparation': renderPreparation(); break;
-                default: renderHome();
-            }
-            lucide.createIcons();
-            window.scrollTo(0, 0);
-        }
+      function renderGlossary() { const t = translations[currentLang]; document.getElementById('app-content').innerHTML = `<div data-view="glossary" class="container py-5"><h1 class="text-center fw-bold mb-5">${t.glossaryTitle}</h1><div class="row g-4">${glossary.map(g => `<div class="col-md-6"><div class="card h-100 p-4 border-0 shadow-sm"><h5>${g.name}</h5><p class="text-muted">${g.description[currentLang]}</p></div></div>`).join('')}</div></div>`; }
+      
+      function renderPreparation() { 
+        const t = translations[currentLang]; const noFastIds = [10, 11, 18, 19, 20];
+        const fasting = packages.filter(p => !noFastIds.includes(p.id) && (p.precautions[currentLang].includes('صيام') || p.precautions[currentLang].toLowerCase().includes('fasting')));
+        const nonFasting = packages.filter(p => noFastIds.includes(p.id) || (!p.precautions[currentLang].includes('صيام') && !p.precautions[currentLang].toLowerCase().includes('fasting')));
+        document.getElementById('app-content').innerHTML = `<div data-view="prep" class="container py-5"><h1 class="text-center fw-bold mb-5">${t.prepTitle}</h1><div class="row g-4"><div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="bg-primary text-white p-3"><h5>${t.fastingReq}</h5></div><div class="p-4">${fasting.map(p => `<p class="mb-1 fw-bold">${p.name[currentLang]}</p><p class="small text-danger mb-3">${p.precautions[currentLang]}</p>`).join('')}</div></div></div><div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="bg-success text-white p-3"><h5>${t.noFasting}</h5></div><div class="p-4">${nonFasting.map(p => `<p class="mb-1 fw-bold">${p.name[currentLang]}</p><p class="small text-muted mb-3">${p.precautions[currentLang]}</p>`).join('')}</div></div></div></div></div>`;
+      }
 
-        // Render Home
-        function renderHome() {
-            const categories = [
-                { id: 'Men', name: t().men, desc: t().menDesc },
-                { id: 'Women', name: t().women, desc: t().womenDesc },
-                { id: 'Children', name: t().children, desc: t().childrenDesc },
-                { id: 'Weight Loss', name: t().weightLoss, desc: t().weightLossDesc },
-                { id: 'Skin/Beauty', name: t().skinBeauty, desc: t().skinBeautyDesc },
-                { id: 'Chronic Disease', name: t().chronicDisease, desc: t().chronicDiseaseDesc },
-                { id: 'Vitamins', name: t().vitamins, desc: t().vitaminsDesc }
-            ];
-
-            document.getElementById('app-content').innerHTML = `
-                <!-- Hero -->
-                <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-16 lg:py-24">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="grid lg:grid-cols-2 gap-12 items-center">
-                            <div class="space-y-6 animate-fade-in-up">
-                                <p class="text-xs font-semibold tracking-widest uppercase text-secondary">${t().tagline}</p>
-                                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight">${t().heroTitle}</h1>
-                                <p class="text-lg text-muted-foreground max-w-lg leading-relaxed">${t().heroSubtitle}</p>
-                                <div class="flex gap-2 max-w-md">
-                                    <div class="relative flex-1">
-                                        <i data-lucide="search" class="absolute ${currentLang === 'ar' ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"></i>
-                                        <input type="text" id="hero-search" placeholder="${t().searchPlaceholder}" class="input ${currentLang === 'ar' ? 'pr-10' : 'pl-10'}" onkeydown="if(event.key==='Enter')heroSearch()">
-                                    </div>
-                                    <button onclick="heroSearch()" class="btn-primary">${t().search}</button>
-                                </div>
-                                <button onclick="showView('packages')" class="btn-outline flex items-center gap-2">
-                                    ${t().viewAll}
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="relative hidden lg:block animate-fade-in-up stagger-2">
-                                <div class="relative rounded-3xl overflow-hidden shadow-2xl">
-                                    <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80" alt="Healthcare" class="w-full h-96 object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
-                                </div>
-                                <div class="absolute -bottom-6 ${currentLang === 'ar' ? '-right-6' : '-left-6'} bg-white rounded-2xl shadow-xl p-4 animate-float">
-                                    <div class="flex items-center gap-3">
-                                        <div class="p-3 bg-primary/10 rounded-xl"><i data-lucide="flask-conical" class="w-6 h-6 text-primary"></i></div>
-                                        <div><p class="font-semibold">${packages.length}+</p><p class="text-sm text-muted-foreground">${t().packages}</p></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Categories -->
-                <section class="py-16 lg:py-24">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-center mb-12">${t().exploreCategories}</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                            ${categories.map((cat, idx) => {
-                                const config = categoryConfig[cat.id];
-                                return `<button onclick="showView('packages', '${cat.id}')" class="group p-6 rounded-2xl bg-white border border-gray-200/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 text-start opacity-0 animate-fade-in-up stagger-${idx % 6 + 1}">
-                                    <div class="w-14 h-14 rounded-2xl ${config.iconGradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <i data-lucide="${config.icon}" class="w-7 h-7 text-white"></i>
-                                    </div>
-                                    <h3 class="font-semibold mb-1">${cat.name}</h3>
-                                    <p class="text-sm text-muted-foreground">${cat.desc}</p>
-                                </button>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Featured -->
-                <section class="py-16 lg:py-24 bg-muted/30">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="flex items-center justify-between mb-12">
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight">${t().featured}</h2>
-                            <button onclick="showView('packages')" class="btn-outline flex items-center gap-2">${t().viewAll}<i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                        </div>
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            ${packages.slice(0, 4).map((pkg, idx) => renderPackageCard(pkg, idx)).join('')}
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Why Choose Us -->
-                <section class="py-16 lg:py-24">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-center mb-12">${t().whyChoose}</h2>
-                        <div class="grid md:grid-cols-3 gap-8">
-                            ${[
-                                { icon: 'flask-conical', title: t().quality, desc: t().qualityDesc },
-                                { icon: 'activity', title: t().fast, desc: t().fastDesc },
-                                { icon: 'book-open', title: t().expert, desc: t().expertDesc }
-                            ].map((item, idx) => `
-                                <div class="text-center p-8 rounded-2xl bg-white border border-gray-200/50 opacity-0 animate-fade-in-up stagger-${idx + 1}">
-                                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                        <i data-lucide="${item.icon}" class="w-8 h-8 text-primary"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-lg mb-2">${item.title}</h3>
-                                    <p class="text-muted-foreground">${item.desc}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </section>
-            `;
-        }
-
-        // Hero search
-        function heroSearch() {
-            filters.search = document.getElementById('hero-search').value;
-            showView('packages');
-        }
-
-        // Render Package Card
-        function renderPackageCard(pkg, idx) {
-            const config = categoryConfig[pkg.category] || { icon: 'flask-conical', catClass: 'cat-men' };
-            const isFasting = pkg.precautions[currentLang].toLowerCase().includes('fasting') || pkg.precautions[currentLang].includes('صيام');
-            
-            return `<div class="card-hover cursor-pointer overflow-hidden bg-white rounded-xl border border-gray-200/50 hover:border-primary/30 opacity-0 animate-fade-in-up" style="animation-delay: ${idx * 0.05}s; animation-fill-mode: forwards;" onclick="showPackageDetail(${pkg.id})">
-                <div class="barcode-container p-4 text-center">
-                    <img src="https://barcodeapi.org/api/128/${pkg.code}" alt="Barcode ${pkg.code}" class="h-8 mx-auto opacity-60 hover:opacity-100 transition-opacity">
-                    <p class="font-mono text-xs text-muted-foreground mt-2 tracking-widest">${pkg.code}</p>
-                </div>
-                <div class="p-5">
-                    <div class="flex items-center gap-2 mb-3 flex-wrap">
-                        <div class="p-1.5 rounded-lg ${config.catClass}"><i data-lucide="${config.icon}" class="w-4 h-4"></i></div>
-                        <span class="badge badge-outline">${pkg.testCount} ${t().tests}</span>
-                        <span class="badge ${isFasting ? 'badge-amber' : 'badge-green'}">${isFasting ? t().fastingRequired : t().noFasting}</span>
-                    </div>
-                    <h3 class="font-semibold mb-3 line-clamp-2 min-h-[48px]">${pkg.name[currentLang]}</h3>
-                    <div class="flex items-center justify-between mt-4">
-                        <div class="text-2xl font-bold text-primary">${pkg.price} <span class="text-sm font-normal text-muted-foreground">${t().sar}</span></div>
-                        <button class="btn-primary text-sm flex items-center gap-1">${t().viewDetails}<i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-            </div>`;
-        }
-
-        // Render Packages
-        function renderPackages() {
-            const categoryOptions = [
-                { value: 'all', label: t().all },
-                { value: 'Men', label: t().men },
-                { value: 'Women', label: t().women },
-                { value: 'Children', label: t().children },
-                { value: 'Weight Loss', label: t().weightLoss },
-                { value: 'Skin/Beauty', label: t().skinBeauty },
-                { value: 'Chronic Disease', label: t().chronicDisease },
-                { value: 'Vitamins', label: t().vitamins }
-            ];
-
-            document.getElementById('app-content').innerHTML = `
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-                    <div class="flex flex-col lg:flex-row gap-8">
-                        <!-- Sidebar -->
-                        <aside class="lg:w-72 flex-shrink-0">
-                            <div class="bg-white rounded-xl border border-gray-200/50 p-6 sticky top-24">
-                                <div class="flex items-center justify-between mb-6">
-                                    <h3 class="font-semibold text-lg">${t().filters}</h3>
-                                    <button onclick="clearFilters()" class="btn-ghost text-sm">${t().clearFilters}</button>
-                                </div>
-                                <div class="space-y-5">
-                                    <div>
-                                        <label class="text-sm font-medium mb-2 block">${t().search}</label>
-                                        <div class="relative">
-                                            <i data-lucide="search" class="absolute ${currentLang === 'ar' ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i>
-                                            <input type="text" id="filter-search" value="${filters.search}" placeholder="${t().searchPlaceholder}" class="input ${currentLang === 'ar' ? 'pr-9' : 'pl-9'}" oninput="updateFilter('search', this.value)">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium mb-2 block">${t().category}</label>
-                                        <select class="select" onchange="updateFilter('category', this.value)">
-                                            ${categoryOptions.map(opt => `<option value="${opt.value}" ${filters.category === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium mb-2 block">${t().prepType}</label>
-                                        <select class="select" onchange="updateFilter('prep', this.value)">
-                                            <option value="all" ${filters.prep === 'all' ? 'selected' : ''}>${t().all}</option>
-                                            <option value="fasting" ${filters.prep === 'fasting' ? 'selected' : ''}>${t().fastingRequired}</option>
-                                            <option value="none" ${filters.prep === 'none' ? 'selected' : ''}>${t().noFasting}</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium mb-2 block">${t().complexity}</label>
-                                        <select class="select" onchange="updateFilter('complexity', this.value)">
-                                            <option value="all" ${filters.complexity === 'all' ? 'selected' : ''}>${t().all}</option>
-                                            <option value="basic" ${filters.complexity === 'basic' ? 'selected' : ''}>${t().basic}</option>
-                                            <option value="comprehensive" ${filters.complexity === 'comprehensive' ? 'selected' : ''}>${t().comprehensive}</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium mb-2 block">${t().priceRange}</label>
-                                        <div class="flex gap-2">
-                                            <input type="number" placeholder="${t().min}" value="${filters.minPrice}" class="input w-1/2" oninput="updateFilter('minPrice', this.value)">
-                                            <input type="number" placeholder="${t().max}" value="${filters.maxPrice}" class="input w-1/2" oninput="updateFilter('maxPrice', this.value)">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </aside>
-                        <!-- Package Grid -->
-                        <main class="flex-1">
-                            <div class="mb-6">
-                                <h1 class="text-2xl sm:text-3xl font-medium tracking-tight">${t().packages}</h1>
-                                <p class="text-muted-foreground mt-1" id="package-count"></p>
-                            </div>
-                            <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6" id="packages-grid"></div>
-                        </main>
-                    </div>
-                </div>
-            `;
-            applyFilters();
-        }
-
-        // Update filter
-        function updateFilter(key, value) {
-            filters[key] = value;
-            applyFilters();
-        }
-
-        // Clear filters
-        function clearFilters() {
-            filters = { category: 'all', prep: 'all', complexity: 'all', minPrice: '', maxPrice: '', search: '' };
-            showView('packages');
-        }
-
-        // Apply filters
-        function applyFilters() {
-            const filtered = packages.filter(pkg => {
-                const matchCategory = filters.category === 'all' || pkg.category === filters.category;
-                const isFasting = pkg.precautions[currentLang].toLowerCase().includes('fasting') || pkg.precautions[currentLang].includes('صيام');
-                const matchPrep = filters.prep === 'all' || (filters.prep === 'fasting' ? isFasting : !isFasting);
-                const matchComplexity = filters.complexity === 'all' || (filters.complexity === 'basic' ? pkg.testCount < 10 : pkg.testCount >= 10);
-                const minPrice = parseInt(filters.minPrice) || 0;
-                const maxPrice = parseInt(filters.maxPrice) || 9999;
-                const matchPrice = pkg.price >= minPrice && pkg.price <= maxPrice;
-                const matchSearch = filters.search === '' || pkg.name[currentLang].toLowerCase().includes(filters.search.toLowerCase()) || pkg.code.includes(filters.search);
-                return matchCategory && matchPrep && matchComplexity && matchPrice && matchSearch;
-            });
-
-            document.getElementById('package-count').textContent = `${filtered.length} ${t().packages}`;
-            
-            if (filtered.length > 0) {
-                document.getElementById('packages-grid').innerHTML = filtered.map((pkg, idx) => renderPackageCard(pkg, idx)).join('');
-            } else {
-                document.getElementById('packages-grid').innerHTML = `<div class="col-span-full text-center py-16"><i data-lucide="flask-conical" class="w-16 h-16 mx-auto text-muted-foreground/50 mb-4"></i><p class="text-muted-foreground">${t().noResults}</p></div>`;
-            }
-            lucide.createIcons();
-        }
-
-        // Show package detail
-        function showPackageDetail(id) {
-            const pkg = packages.find(p => p.id === id);
-            const config = categoryConfig[pkg.category] || { icon: 'flask-conical', catClass: 'cat-men' };
-            const isFasting = pkg.precautions[currentLang].toLowerCase().includes('fasting') || pkg.precautions[currentLang].includes('صيام');
-
-            document.getElementById('modal-content').innerHTML = `
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 rounded-xl ${config.catClass}"><i data-lucide="${config.icon}" class="w-6 h-6"></i></div>
-                        <h2 class="text-xl font-semibold">${pkg.name[currentLang]}</h2>
-                    </div>
-                    <button onclick="closeModal()" class="btn-ghost"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-xl text-center cursor-pointer hover:shadow-md transition-shadow mb-4" onclick="showEnlargedBarcode('${pkg.code}', '${pkg.name[currentLang].replace(/'/g, "\\'")}')">
-                    <p class="text-xs text-muted-foreground mb-3">${t().clickToEnlarge}</p>
-                    <img src="https://barcodeapi.org/api/128/${pkg.code}" alt="Barcode" class="h-12 mx-auto">
-                    <p class="font-mono text-lg mt-3 tracking-widest text-primary font-medium">${pkg.code}</p>
-                    <p class="text-sm text-muted-foreground mt-2">${t().scanAtLab}</p>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="p-4 bg-muted/50 rounded-xl">
-                        <p class="text-sm text-muted-foreground mb-1">${t().targetGroup}</p>
-                        <p class="font-medium">${pkg.targetGroup[currentLang]}</p>
-                    </div>
-                    <div class="p-4 rounded-xl ${isFasting ? 'bg-amber-50' : 'bg-green-50'}">
-                        <p class="text-sm text-muted-foreground mb-1">${t().precautions}</p>
-                        <p class="font-medium ${isFasting ? 'text-amber-700' : 'text-green-700'}">${pkg.precautions[currentLang]}</p>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <h4 class="font-semibold mb-3 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4"></i>${t().includedTests} (${pkg.testCount})</h4>
-                    <div class="flex flex-wrap gap-2">${pkg.tests.map(test => `<span class="badge badge-outline bg-primary/5">${test}</span>`).join('')}</div>
-                </div>
-                <div class="p-4 bg-primary/5 rounded-xl flex items-center justify-between">
-                    <span class="text-muted-foreground">${t().packages}</span>
-                    <span class="text-3xl font-bold text-primary">${pkg.price} <span class="text-base font-normal">${t().sar}</span></span>
-                </div>
-            `;
-            document.getElementById('package-modal').classList.add('active');
-            lucide.createIcons();
-        }
-
-        // Close modal
-        function closeModal(event) {
-            if (!event || event.target === event.currentTarget) {
-                document.getElementById('package-modal').classList.remove('active');
-            }
-        }
-
-        // Show enlarged barcode
-        function showEnlargedBarcode(code, name) {
-            document.getElementById('barcode-content').innerHTML = `
-                <button onclick="closeBarcodeModal()" class="absolute top-4 ${currentLang === 'ar' ? 'left-4' : 'right-4'} btn-ghost"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <h3 class="text-lg font-semibold mb-2">${name}</h3>
-                <p class="text-sm text-muted-foreground mb-4">${t().scanAtLab}</p>
-                <img src="https://barcodeapi.org/api/128/${code}" alt="Barcode" class="w-full max-w-sm mx-auto">
-                <p class="font-mono text-3xl mt-6 tracking-widest text-primary font-bold">${code}</p>
-            `;
-            document.getElementById('barcode-modal').classList.add('active');
-            lucide.createIcons();
-        }
-
-        // Close barcode modal
-        function closeBarcodeModal(event) {
-            if (!event || event.target === event.currentTarget) {
-                document.getElementById('barcode-modal').classList.remove('active');
-            }
-        }
-
-        // Render Glossary
-        function renderGlossary() {
-            document.getElementById('app-content').innerHTML = `
-                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-                    <div class="text-center mb-12">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-                            <i data-lucide="book-open" class="w-8 h-8 text-primary"></i>
-                        </div>
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight">${t().glossaryTitle}</h1>
-                        <p class="text-muted-foreground mt-2">${t().glossarySubtitle}</p>
-                    </div>
-                    <div class="space-y-3">
-                        ${glossary.map((item, idx) => `
-                            <div class="accordion-item bg-white rounded-xl border border-gray-200/50 px-6 opacity-0 animate-fade-in-up" style="animation-delay: ${idx * 0.05}s; animation-fill-mode: forwards;">
-                                <button onclick="toggleAccordion(this)" class="w-full py-4 flex items-center justify-between text-start">
-                                    <div class="flex items-center gap-3">
-                                        <div class="p-2 bg-primary/10 rounded-lg"><i data-lucide="flask-conical" class="w-4 h-4 text-primary"></i></div>
-                                        <span class="font-semibold">${item.name}</span>
-                                    </div>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-muted-foreground accordion-icon transition-transform"></i>
-                                </button>
-                                <div class="accordion-content">
-                                    <p class="text-muted-foreground pb-4 ${currentLang === 'ar' ? 'pr-11' : 'pl-11'}">${item.description[currentLang]}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Toggle accordion
-        function toggleAccordion(btn) {
-            btn.parentElement.classList.toggle('open');
-        }
-
-        // Render Preparation
-        function renderPreparation() {
-            const noFastIds = [10, 11, 18, 19, 20];
-            const fastingPkgs = packages.filter(p => !noFastIds.includes(p.id) && (p.precautions[currentLang].toLowerCase().includes('fasting') || p.precautions[currentLang].includes('صيام')));
-            const nonFastingPkgs = packages.filter(p => noFastIds.includes(p.id) || (!p.precautions[currentLang].toLowerCase().includes('fasting') && !p.precautions[currentLang].includes('صيام')));
-
-            document.getElementById('app-content').innerHTML = `
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-                    <div class="text-center mb-12">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-                            <i data-lucide="clipboard-list" class="w-8 h-8 text-primary"></i>
-                        </div>
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight">${t().prepTitle}</h1>
-                        <p class="text-muted-foreground mt-2">${t().prepSubtitle}</p>
-                    </div>
-                    <div class="flex gap-2 mb-8 bg-muted/50 p-1 rounded-xl">
-                        <button onclick="switchPrepTab('fasting')" id="tab-fasting" class="tab-btn flex-1 active-fasting">${t().fastingPackages}</button>
-                        <button onclick="switchPrepTab('nonfasting')" id="tab-nonfasting" class="tab-btn flex-1">${t().nonFastingPackages}</button>
-                    </div>
-                    <div id="prep-fasting" class="tab-content active space-y-3">
-                        ${fastingPkgs.map((pkg, idx) => `
-                            <div class="p-5 bg-white rounded-xl border border-amber-200/50 opacity-0 animate-fade-in-up" style="animation-delay: ${idx * 0.05}s; animation-fill-mode: forwards;">
-                                <h3 class="font-semibold mb-2">${pkg.name[currentLang]}</h3>
-                                <p class="text-sm text-amber-700 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4"></i>${pkg.precautions[currentLang]}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div id="prep-nonfasting" class="tab-content space-y-3">
-                        ${nonFastingPkgs.map((pkg, idx) => `
-                            <div class="p-5 bg-white rounded-xl border border-green-200/50 opacity-0 animate-fade-in-up" style="animation-delay: ${idx * 0.05}s; animation-fill-mode: forwards;">
-                                <h3 class="font-semibold mb-2">${pkg.name[currentLang]}</h3>
-                                <p class="text-sm text-green-700 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4"></i>${pkg.precautions[currentLang]}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Switch prep tab
-        function switchPrepTab(tab) {
-            document.getElementById('tab-fasting').className = tab === 'fasting' ? 'tab-btn flex-1 active-fasting' : 'tab-btn flex-1';
-            document.getElementById('tab-nonfasting').className = tab === 'nonfasting' ? 'tab-btn flex-1 active-nonfasting' : 'tab-btn flex-1';
-            document.getElementById('prep-fasting').className = tab === 'fasting' ? 'tab-content active space-y-3' : 'tab-content space-y-3';
-            document.getElementById('prep-nonfasting').className = tab === 'nonfasting' ? 'tab-content active space-y-3' : 'tab-content space-y-3';
-            lucide.createIcons();
-        }
-
-        // Initialize on DOM load
-        document.addEventListener('DOMContentLoaded', init);
+      document.addEventListener('DOMContentLoaded', init);
     </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"7f7b0fd8732c4326aae4b9d58d5c514a","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-</body>
+  </body>
 </html>
