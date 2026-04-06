@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DMSCO Health Packages</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-      :root { --primary-blue: #004a99; --accent-gold: #d4af37; --medical-white: #f8f9fa; }
+      :root { --primary-blue: #004a99; --accent-gold: #d4af37; --medical-white: #f8f9fa; --male-blue: #004a99; --female-pink: #e11d48; --child-green: #10b981; }
       body { font-family: 'Inter', sans-serif; background-color: var(--medical-white); color: #333; }
       [dir="rtl"] { font-family: 'Cairo', sans-serif; }
       .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -17,27 +21,27 @@
       .btn-gold { background-color: var(--accent-gold); color: white; border: none; transition: 0.3s; }
       .btn-gold:hover { background-color: #b8962d; color: white; transform: translateY(-2px); }
       
-      .card-package { border: none; border-radius: 16px; transition: all 0.3s ease; height: 100%; cursor: pointer; overflow: hidden; background: white; border: 1px solid rgba(0,0,0,0.05); position: relative; }
+      /* Package Card Styling */
+      .card-package { border: none; border-radius: 16px; transition: all 0.3s ease; height: 100%; cursor: pointer; overflow: hidden; background: white; border: 1px solid rgba(0,0,0,0.05); }
       .card-package:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0, 74, 153, 0.12); border-color: var(--primary-blue); }
       
-      /* Barcode Preview Styling */
+      /* Barcode Wrapper optimized for Scanner */
       .barcode-wrapper { background: #f8fafc; padding: 12px; text-align: center; border-bottom: 1px dashed #e2e8f0; transition: background 0.3s; cursor: zoom-in; position: relative; }
-      .barcode-wrapper::after { content: 'Click to Enlarge'; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; color: var(--primary-blue); opacity: 0; transition: 0.3s; font-weight: bold; }
-      .barcode-wrapper:hover::after { opacity: 0.7; }
-      [dir="rtl"] .barcode-wrapper::after { content: 'اضغط للتكبير'; }
-      
-      .card-package:hover .barcode-wrapper { background: #eff6ff; }
-      .barcode-img { height: 35px; width: auto; mix-blend-mode: multiply; filter: grayscale(100%) opacity(0.6); transition: all 0.3s; }
+      .barcode-wrapper:hover { background: #eff6ff; }
+      .barcode-img { height: 35px; width: auto; mix-blend-mode: multiply; filter: grayscale(100%) opacity(0.6); transition: 0.3s; }
       .card-package:hover .barcode-img { filter: grayscale(0%) opacity(1); }
-      
       .code-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #94a3b8; margin-top: 4px; letter-spacing: 2px; }
-      .card-package:hover .code-text { color: var(--primary-blue); }
       
+      /* Home Page Categories */
+      .cat-card { border-radius: 20px; border: 2px solid transparent; transition: all 0.3s ease; background: white; cursor: pointer; height: 100%; }
+      .cat-card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+      .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+
       .price-tag { color: var(--primary-blue); font-weight: 700; font-size: 1.3rem; }
       .sidebar { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 90px; }
       .hero-section { background: linear-gradient(135deg, var(--primary-blue) 0%, #0066cc 100%); color: white; padding: 60px 0; margin-bottom: 40px; }
-      .test-badge { background-color: #e7f1ff; color: var(--primary-blue); border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; margin: 2px; display: inline-block; transition: 0.2s; cursor: pointer; border: 1px solid transparent; }
-      .test-badge:hover { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+      .test-badge { background-color: #e7f1ff; color: var(--primary-blue); border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; margin: 2px; display: inline-block; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+      .test-badge:hover { background-color: var(--primary-blue); color: white; }
       .signature-text { color: #adb5bd; font-size: 0.85rem; }
     </style>
   </head>
@@ -45,9 +49,7 @@
     <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold" href="#" id="nav-logo">DMSCO Health</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-center">
             <li class="nav-item"><a class="nav-link" href="#" id="nav-home">Home</a></li>
@@ -73,61 +75,64 @@
       </div>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      // --- DATASET ---
+      // --- ALL 20 PACKAGES DATA ---
       const packages = [
-        { id: 1, code: "1000194", name: { en: "Men's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للرجل)" }, price: 349, testCount: 25, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK"], precautions: { en: "Fasting 10-12 hours required.", ar: "يحتاج صيام 10-12 ساعة." }, targetGroup: { en: "Men checking general health or chronic fatigue.", ar: "الرجال الراغبون في التأكد من الصحة العامة." } },
-        { id: 2, code: "1000216", name: { en: "Men's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للرجل)" }, price: 599, testCount: 35, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK", "Testosterone", "Prolactin", "PSA", "LH", "FSH", "free T3", "free T4", "HOMA-IR"], precautions: { en: "Fasting 10-12h. Abstain from heavy exercise.", ar: "صيام 10-12 ساعة. تجنب الرياضة." }, targetGroup: { en: "Silver plus: Fertility and hormonal health.", ar: "يشمل الفضية بالإضافة لـ: فحص الخصوبة." } },
-        { id: 3, code: "1000195", name: { en: "Women's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للمرأة)" }, price: 349, testCount: 25, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus"], precautions: { en: "Fasting 10-12 hours required.", ar: "يحتاج صيام 10-12 ساعة." }, targetGroup: { en: "Women for annual check or hair loss issues.", ar: "النساء للفحص السنوي أو تساقط الشعر." } },
-        { id: 4, code: "1000217", name: { en: "Women's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للمرأة)" }, price: 599, testCount: 35, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus", "Prolactin", "FSH", "LH", "FT3", "FT4", "GGT", "Alk Phosphatase", "HOMA-IR"], precautions: { en: "Fasting 10-12h. FSH/LH: Day 2 or 3 preferred.", ar: "صيام 10-12 ساعة. الهرمونات: يفضل يوم 2 أو 3." }, targetGroup: { en: "Silver plus: Fertility and metabolic health.", ar: "يشمل الفضية وفحص الخصوبة." } },
-        { id: 5, code: "1000196", name: { en: "Children's Health Package", ar: "باقة نهتم بصحة طفلك" }, price: 399, testCount: 16, category: "Children", tests: ["CBC", "Iron", "Ferritin", "Ca", "Vitamin D", "Stool analysis", "AST", "ALP", "GGT", "ALT", "Creat", "Urea", "CRP", "FBS", "TSH", "Zinc"], precautions: { en: "Fasting 8-10 hours.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Children 1-12 years.", ar: "الأطفال من 1-12 سنة." } },
-        { id: 6, code: "1000197", name: { en: "Hair And Beauty Package", ar: "باقة نهتم بجمالك" }, price: 249, testCount: 8, category: "Skin/Beauty", tests: ["CBC", "TSH", "Vit D", "Iron", "Ferritin", "Zinc", "B12", "Magnesium"], precautions: { en: "Fasting 8-10 hours required.", ar: "يحتاج صيام 8-10 ساعات." }, targetGroup: { en: "Hair loss or dry skin.", ar: "تساقط الشعر أو جفاف البشرة." } },
-        { id: 7, code: "1000198", name: { en: "Pre-Weight Loss Injections (Mounjaro/Wegovy/Ozempic) - Him", ar: "باقة ما قبل إبر التنحيف (مونجارو/ويجوفي/أوزمبيك) له" }, price: 299, testCount: 20, category: "Weight Loss", tests: ["CBC", "Cholesterol", "Triglycerides", "HDL", "LDL", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "Uric acid"], precautions: { en: "Fasting 10-12 hours required.", ar: "يحتاج صيام 10-12 ساعة." }, targetGroup: { en: "Men planning to use weight loss injections.", ar: "الرجال المخططون لاستخدام إبر التنحيف." } },
-        { id: 8, code: "1000202", name: { en: "Pre-Weight Loss Injections (Mounjaro/Wegovy/Ozempic) - Her", ar: "باقة ما قبل إبر التنحيف (مونجارو/ويجوفي/أوزمبيك) لها" }, price: 299, testCount: 21, category: "Weight Loss", tests: ["CBC", "Cholesterol", "HDL", "LDL", "ALT", "AST", "Vit D", "HbA1C", "FBS", "Amylase", "Lipase", "Pregnancy Test"], precautions: { en: "Fasting 10-12 hours required.", ar: "يحتاج صيام 10-12 ساعة." }, targetGroup: { en: "Women planning to use weight loss injections.", ar: "النساء المخططات لاستخدام إبر التنحيف." } },
-        { id: 9, code: "1000203", name: { en: "Post Weight Loss Monitoring (Mounjaro/Wegovy/Ozempic)", ar: "باقة أثناء استخدام إبر التنحيف (مونجارو/ويجوفي/أوزمبيك)" }, price: 549, testCount: 25, category: "Weight Loss", tests: ["CBC", "Lipid Profile", "Liver/Kidney Functions", "Amylase", "Lipase", "Na", "K", "Cl", "GGT", "Magnesium"], precautions: { en: "Fasting 10-12 hours required.", ar: "يحتاج صيام 10-12 ساعة." }, targetGroup: { en: "Health monitoring during diet.", ar: "متابعة الصحة أثناء الحمية." } },
-        { id: 10, code: "1000208", name: { en: "Vitamin D Analysis", ar: "تحليل فيتامين د" }, price: 159, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Bone pain.", ar: "آلام العظام." } },
-        { id: 11, code: "1000215", name: { en: "In Lab Vitamin D Analysis", ar: "تحليل فيتامين د بالمختبر" }, price: 49, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Vit D check.", ar: "تحليل فيتامين د." } },
-        { id: 12, code: "1000204", name: { en: "Diabetes Early Detection", ar: "باقة الكشف المبكر للسكري" }, price: 199, testCount: 6, category: "Chronic Disease", tests: ["FBS", "HbA1c", "Cholesterol", "Triglyceride", "HDL", "LDL"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Family history.", ar: "تاريخ عائلي للسكري." } },
-        { id: 13, code: "1000218", name: { en: "Vitamins & Minerals (Basic)", ar: "باقة الفيتامينات والمعادن الأساسية" }, price: 299, testCount: 10, category: "Vitamins", tests: ["Vit D", "B12", "Iron", "Ferritin", "Ca", "Mg", "Zinc", "Na", "K", "Phosphorus"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "General fatigue.", ar: "التعب العام." } },
-        { id: 14, code: "1000219", name: { en: "Vitamins & Minerals (Platinum)", ar: "باقة الفيتامينات والمعادن البالتينية" }, price: 999, testCount: 17, category: "Vitamins", tests: ["Basic", "B1", "B2", "B6", "B9", "A", "C", "E"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Full evaluation.", ar: "تقييم كامل." } },
-        { id: 15, code: "1000220", name: { en: "Acne Follow-up Package", ar: "باقة متابعة علاج حب الشباب" }, price: 209, testCount: 9, category: "Skin/Beauty", tests: ["CBC", "Cholesterol", "Lipid Profile", "Liver/Kidney Functions"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Isotretinoin users.", ar: "مستخدمي علاج حب الشباب." } },
-        { id: 16, code: "1000221", name: { en: "Colon Health Package", ar: "باقة صحة القولون" }, price: 499, testCount: 4, category: "Chronic Disease", tests: ["Calprotectin", "CBC", "FIT", "H pylori Stool Ag"], precautions: { en: "No antibiotics.", ar: "يمنع المضاد الحيوي." }, targetGroup: { en: "Digestive issues.", ar: "اضطرابات هضمية." } },
+        { id: 1, code: "1000194", name: { en: "Men's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للرجل)" }, price: 349, testCount: 25, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK"], precautions: { en: "Fasting 10-12 hours required. Water is allowed.", ar: "يحتاج صيام 10-12 ساعة. مسموح شرب الماء." }, targetGroup: { en: "Men checking general health annually, chronic fatigue, or heart/diabetes history.", ar: "الرجال الراغبون في التأكد من الصحة العامة سنوياً، أو من لديه تاريخ عائلي بالسكر/القلب." } },
+        { id: 2, code: "1000216", name: { en: "Men's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للرجل)" }, price: 599, testCount: 35, category: "Men", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "TSH", "HBA1C", "eGFR", "Na", "K", "CL", "Zinc", "Mg", "CK", "Testosterone", "Prolactin", "PSA", "LH", "FSH", "free T3", "free T4", "HOMA-IR (Glucose + Insulin)"], precautions: { en: "Fasting 10-12h. Abstain from sexual activity and heavy exercise for 24-48h.", ar: "صيام 10-12 ساعة. الامتناع عن الجماع والرياضة لـ 24-48 ساعة قبل الفحص." }, targetGroup: { en: "Silver targets + Fertility, Athletes, hormonal disorders, and Prostate check.", ar: "الفضية + فحص الخصوبة، الرياضيين، واضطرابات الهرمونات وفحص البروستاتا." } },
+        { id: 3, code: "1000195", name: { en: "Women's Health Package (Silver)", ar: "باقة نهتم بصحتك - الفضية (للمرأة)" }, price: 349, testCount: 25, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus"], precautions: { en: "Fasting 10-12h. Water allowed.", ar: "صيام 10-12 ساعة. مسموح الماء." }, targetGroup: { en: "Women for annual check, hair loss/skin issues, or weight/energy levels.", ar: "النساء للفحص السنوي، أو من تعاني من تساقط الشعر/ضعف البشرة أو مشاكل الوزن." } },
+        { id: 4, code: "1000217", name: { en: "Women's Health Package (Gold)", ar: "باقة نهتم بصحتك - الذهبية (للمرأة)" }, price: 599, testCount: 35, category: "Women", tests: ["CBC", "FBS", "Cholesterol", "Triglycerides", "HDL", "LDL", "Uric acid", "urea", "creatinine", "AST", "ALT", "Iron", "Ferritin", "calcium", "Vit D", "Vit B12", "zinc", "TSH", "Mg", "HBA1c", "eGFR", "Na", "K", "CL", "Phosphorus", "Prolactin", "FSH", "LH", "FT3", "FT4", "GGT", "Alk Phosphatase", "HOMA-IR (Glucose + Insulin)"], precautions: { en: "Fasting 10-12h. Prolactin: 8-10 AM. FSH/LH: Day 2 or 3 of period.", ar: "صيام 10-12 ساعة. البرولاكتين 8-10 صباحاً. الهرمونات يوم 2 أو 3 من الدورة." }, targetGroup: { en: "Silver targets + Fertility, Athletes, and Metabolic issues.", ar: "الفضية + فحص الخصوبة، الرياضيين، واضطرابات الهرمونات والأيض." } },
+        { id: 5, code: "1000196", name: { en: "Children's Health Package", ar: "باقة نهتم بصحة طفلك" }, price: 399, testCount: 16, category: "Children", tests: ["CBC", "Iron", "Ferritin", "Ca", "Vitamin D", "Stool analysis", "AST", "ALP", "GGT", "ALT", "Creat", "Urea", "CRP", "FBS", "TSH", "Zinc"], precautions: { en: "Fasting 8-10 hours.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Children 1-12 years, growth delay, frequent infection or weak immunity.", ar: "الأطفال من 1-12 سنة، تأخر النمو، ضعف المناعة." } },
+        { id: 6, code: "1000197", name: { en: "Hair And Beauty Package", ar: "باقة نهتم بجمالك" }, price: 249, testCount: 8, category: "Skin/Beauty", tests: ["CBC", "TSH", "Vit D", "Iron", "Ferritin", "Zinc", "B12", "Magnesium"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Hair loss, weak nails, or dry skin.", ar: "تساقط الشعر، ضعف الأظافر، أو جفاف البشرة." } },
+        { id: 7, code: "1000198", name: { en: "Pre-Weight Loss (Mounjaro/Wegovy/Ozempic) - Him", ar: "باقة ما قبل إبر التنحيف له" }, price: 299, testCount: 20, category: "Weight Loss", tests: ["CBC", "Cholesterol", "Triglycerides", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "uric acid"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Men planning to start injections like Mounjaro/Ozempic.", ar: "الرجال المخططون لبدء إبر التنحيف." } },
+        { id: 8, code: "1000202", name: { en: "Pre-Weight Loss (Mounjaro/Wegovy/Ozempic) - Her", ar: "باقة ما قبل إبر التنحيف لها" }, price: 299, testCount: 21, category: "Weight Loss", tests: ["CBC", "Cholesterol", "Triglycerides", "ALT", "AST", "Urea", "Creatinine", "Iron", "Ferritin", "Calcium", "Vit D", "B12", "TSH", "HbA1C", "FBS", "Amylase", "Lipase", "uric acid", "pregnancy test"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Women planning to start injections like Mounjaro/Ozempic.", ar: "النساء المخططات لبدء إبر التنحيف." } },
+        { id: 9, code: "1000203", name: { en: "Post Weight Loss Monitoring (Mounjaro/Wegovy/Ozempic)", ar: "باقة أثناء استخدام إبر التنحيف" }, price: 549, testCount: 25, category: "Weight Loss", tests: ["CBC", "Lipid Profile", "Liver Enzymes", "Kidney Functions", "Amylase", "Lipase", "Magnesium", "Electrolytes (Na, K, Cl)", "HbA1C", "Folic Acid"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Current users of weight loss treatments.", ar: "متابعة مستخدمي إبر التنحيف حالياً." } },
+        { id: 10, code: "1000208", name: { en: "Vitamin D Analysis", ar: "تحليل فيتامين د" }, price: 159, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc*"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Bone pain or deficiency check.", ar: "آلام العظام أو فحص نقص الفيتامينات." } },
+        { id: 11, code: "1000215", name: { en: "In Lab Vitamin D Analysis", ar: "تحليل فيتامين د بالمختبر" }, price: 49, testCount: 2, category: "Vitamins", tests: ["Vit D", "Zinc*"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "General check.", ar: "تحليل عام." } },
+        { id: 12, code: "1000204", name: { en: "Diabetes Early Detection", ar: "باقة الكشف المبكر للسكري" }, price: 199, testCount: 6, category: "Chronic Disease", tests: ["FBS", "HbA1c", "Cholesterol", "Triglyceride", "HDL", "LDL"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "History of diabetes.", ar: "تاريخ عائلي للسكري." } },
+        { id: 13, code: "1000218", name: { en: "Vitamins & Minerals (Basic)", ar: "باقة الفيتامينات والمعادن األساسية" }, price: 299, testCount: 10, category: "Vitamins", tests: ["Vit D", "B12", "Iron", "Ferritin", "Ca", "Mg", "Zinc", "Na", "K", "Phosphorus"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Fatigue or weak immunity.", ar: "التعب أو ضعف المناعة." } },
+        { id: 14, code: "1000219", name: { en: "Vitamins & Minerals (Platinum)", ar: "باقة الفيتامينات والمعادن البالتينية" }, price: 999, testCount: 17, category: "Vitamins", tests: ["Basic tests", "Vit B1", "Vit B2", "Vit B6", "Vit B9", "Vit A", "Vit C", "Vit E"], precautions: { en: "Fasting 8-10h.", ar: "صيام 8-10 ساعات." }, targetGroup: { en: "Full vitamin evaluation.", ar: "تقييم شامل للفيتامينات." } },
+        { id: 15, code: "1000220", name: { en: "Acne Follow-up Package", ar: "باقة متابعة عالج حب الشباب" }, price: 209, testCount: 9, category: "Skin/Beauty", tests: ["CBC", "Cholesterol", "Lipid Profile", "Liver/Kidney Functions"], precautions: { en: "Fasting 10-12h.", ar: "صيام 10-12 ساعة." }, targetGroup: { en: "Isotretinoin users.", ar: "مستخدمي الروأكيوتان." } },
+        { id: 16, code: "1000221", name: { en: "Colon Health Package", ar: "باقة صحة القولون" }, price: 499, testCount: 4, category: "Chronic Disease", tests: ["Calprotectin", "CBC", "FIT", "H pylori Stool Ag"], precautions: { en: "No antibiotics.", ar: "يمنع المضاد الحيوي." }, targetGroup: { en: "Digestive issues.", ar: "مشاكل هضمية." } },
         { id: 17, code: "1000222", name: { en: "H. Pylori (Breath Test)", ar: "باقة فحص جرثومة المعدة بالتنفس" }, price: 199, testCount: 1, category: "Chronic Disease", tests: ["Urea Breath Test"], precautions: { en: "Fasting 6h.", ar: "صيام 6 ساعات." }, targetGroup: { en: "Heartburn.", ar: "حرقة المعدة." } },
         { id: 18, code: "1000223", name: { en: "Celiac (Gluten) Package", ar: "باقة التحسس من الغلوتين" }, price: 499, testCount: 5, category: "Chronic Disease", tests: ["IgA", "tTG IgA", "tTG IgG", "Antigliadin"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Gluten sensitivity.", ar: "حساسية الغلوتين." } },
-        { id: 19, code: "1000224", name: { en: "In Lab Basic Diabetic Package", ar: "باقة السكري األساسية بالمختبر" }, price: 49, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar monitoring.", ar: "متابعة السكر." } },
-        { id: 20, code: "1000225", name: { en: "Basic Diabetic Package", ar: "باقة السكري األساسية" }, price: 109, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar monitoring.", ar: "متابعة السكر." } }
+        { id: 19, code: "1000224", name: { en: "In Lab Basic Diabetic Package", ar: "باقة السكري األساسية بالمختبر" }, price: 49, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar control.", ar: "متابعة السكر." } },
+        { id: 20, code: "1000225", name: { en: "Basic Diabetic Package", ar: "باقة السكري األساسية" }, price: 109, testCount: 2, category: "Chronic Disease", tests: ["HbA1C", "RBS"], precautions: { en: "No fasting.", ar: "لا يحتاج صيام." }, targetGroup: { en: "Sugar control.", ar: "متابعة السكر." } }
       ];
 
       const glossary = [
-        { name: "CBC", description: { en: "Complete Blood Count: Measures red cells, white cells, and platelets.", ar: "عد الدم الكامل: يقيس خلايا الدم الحمراء والبيضاء والصفائح." } },
-        { name: "FBS", description: { en: "Fasting Blood Sugar: Measures glucose level after fasting.", ar: "سكر الدم الصائم: يقيس مستوى الجلوكوز بعد الصيام." } },
-        { name: "Vit D", description: { en: "Essential for bone health and immunity.", ar: "ضروري لصحة العظام والمناعة." } },
-        { name: "HbA1c", description: { en: "Shows average blood sugar over the last 3 months.", ar: "يوضح متوسط السكر خلال آخر 3 أشهر." } },
-        { name: "Amylase / Lipase", description: { en: "Enzymes that check pancreas health.", ar: "إنزيمات البنكرياس لمتابعة سلامة وظائفه." } }
+        { name: "CBC", description: { en: "Complete Blood Count: Measures red cells, white cells, and platelets to check for anemia and infection.", ar: "عد الدم الكامل: يقيس خلايا الدم الحمراء والبيضاء والصفائح للكشف عن فقر الدم والالتهابات." } },
+        { name: "FBS / RBS", description: { en: "Fasting/Random Blood Sugar: Checks current glucose levels.", ar: "سكر الدم الصائم/العشوائي: يفحص مستويات الجلوكوز الحالية." } },
+        { name: "Lipid Profile", description: { en: "Includes Cholesterol, HDL, LDL, and Triglycerides to assess heart health.", ar: "يشمل الكوليسترول والدهون الثلاثية لتقييم صحة القلب." } },
+        { name: "AST / ALT", description: { en: "Liver enzymes that indicate liver health or damage.", ar: "إنزيمات الكبد التي تدل على سلامة وظائف الكبد." } },
+        { name: "Urea / Creatinine", description: { en: "Kidney function tests that measure waste filtration.", ar: "اختبارات وظائف الكلى لقياس مدى كفاءة تصفية الفضلات." } },
+        { name: "Vit D / B12", description: { en: "Essential vitamins for bone health, red cells, and nerves.", ar: "فيتامينات أساسية للعظام وإنتاج خلايا الدم والأعصاب." } },
+        { name: "HbA1c", description: { en: "Glycated Hemoglobin: Shows average sugar over the last 3 months.", ar: "السكر التراكمي: يوضح متوسط السكر خلال آخر 3 أشهر." } },
+        { name: "Amylase / Lipase", description: { en: "Enzymes that check pancreas health.", ar: "إنزيمات البنكرياس: لمتابعة سلامة وظائف البنكرياس." } },
+        { name: "HOMA-IR", description: { en: "Evaluates insulin resistance.", ar: "تقييم مقاومة الأنسولين." } }
       ];
 
+      // --- LOGIC ---
       let currentLang = 'en';
       const translations = {
-        en: { logo: "DMSCO Health", home: "Home", packages: "Packages", glossary: "Glossary", prep: "Preparation", heroTitle: "Check and Be Reassured", heroSub: "Tailored health screenings for your needs.", searchPlaceholder: "Search...", filters: "Filters", clear: "Clear", category: "Category", sar: "SAR", tests: "Tests", details: "View Details", fastingReq: "Fasting Required", noFasting: "No Fasting", targetGroup: "Target Group", precautions: "Precautions", testList: "Included Tests", glossaryTitle: "Test Glossary", prepTitle: "Preparation Guide", noResults: "No results.", backToPackage: "Back to Package", scanTitle: "Scan this code at the lab" },
-        ar: { logo: "ديمسكو للصحة", home: "الرئيسية", packages: "الباقات", glossary: "قاموس التحاليل", prep: "دليل التحضير", heroTitle: "افحص وتطمن", heroSub: "باقات فحص صحي مصممة خصيصاً لك.", searchPlaceholder: "ابحث...", filters: "الفلاتر", clear: "مسح", category: "الفئة", sar: "ريال", tests: "تحليل", details: "عرض التفاصيل", fastingReq: "يتطلب صيام", noFasting: "لا يتطلب صيام", targetGroup: "الفئة المستهدفة", precautions: "الاحتياطات", testList: "التحاليل المشمولة", glossaryTitle: "قاموس التحاليل", prepTitle: "دليل التحضير", noResults: "لم يتم العثور على نتائج.", backToPackage: "العودة للباقة", scanTitle: "امسح الكود في المختبر" }
+        en: { logo: "DMSCO Health", home: "Home", packages: "Packages", glossary: "Glossary", prep: "Preparation", heroTitle: "Check and Be Reassured", heroSub: "Tailored health screenings.", searchPlaceholder: "Search by Name or Code...", filters: "Filters", clear: "Clear Filters", men: "Men", women: "Women", children: "Children", weight: "Weight Loss", sar: "SAR", tests: "Tests", details: "View Details", fastingReq: "Fasting Required", noFasting: "No Fasting", targetGroup: "Target Group", back: "Back to Package", scanTitle: "Enlarged Barcode for Scanning" },
+        ar: { logo: "ديمسكو للصحة", home: "الرئيسية", packages: "الباقات", glossary: "قاموس التحاليل", prep: "دليل التحضير", heroTitle: "افحص وتطمن", heroSub: "باقات فحص صحي احترافية.", searchPlaceholder: "ابحث بالاسم أو الكود...", filters: "الفلاتر", clear: "مسح الفلاتر", men: "الرجال", women: "النساء", children: "الأطفال", weight: "إنقاص الوزن", sar: "ريال", tests: "تحليل", details: "عرض التفاصيل", fastingReq: "يتطلب صيام", noFasting: "لا يتطلب صيام", targetGroup: "الفئة المستهدفة", back: "العودة للباقة", scanTitle: "الباركود مكبّر للمسح" }
       };
 
       function init() { renderHome(); setupEventListeners(); }
 
       function closeMobileMenu() {
-        const navContainer = document.getElementById('navbarNav');
-        if (navContainer.classList.contains('show')) {
-            const bsCollapse = bootstrap.Collapse.getInstance(navContainer) || new bootstrap.Collapse(navContainer);
-            bsCollapse.hide();
+        const nav = document.getElementById('navbarNav');
+        if (nav && nav.classList.contains('show')) {
+            bootstrap.Collapse.getOrCreateInstance(nav).hide();
         }
       }
 
       function setupEventListeners() {
         document.getElementById('lang-btn').addEventListener('click', toggleLanguage);
-        ['nav-logo', 'nav-home'].forEach(id => {
-            document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); renderHome(); closeMobileMenu(); });
-        });
+        ['nav-logo', 'nav-home'].forEach(id => document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); renderHome(); closeMobileMenu(); }));
         document.getElementById('nav-packages').addEventListener('click', (e) => { e.preventDefault(); renderPackages(); closeMobileMenu(); });
         document.getElementById('nav-glossary').addEventListener('click', (e) => { e.preventDefault(); renderGlossary(); closeMobileMenu(); });
         document.getElementById('nav-prep').addEventListener('click', (e) => { e.preventDefault(); renderPreparation(); closeMobileMenu(); });
@@ -147,78 +152,82 @@
         document.getElementById('app-content').innerHTML = `
           <div data-view="home">
             <section class="hero-section text-center"><div class="container"><h1 class="display-4 fw-bold mb-3">${t.heroTitle}</h1><p class="lead mb-4">${t.heroSub}</p><div class="row justify-content-center"><div class="col-md-8"><div class="input-group input-group-lg shadow-sm"><input type="text" id="main-search" class="form-control border-0" placeholder="${t.searchPlaceholder}"><button class="btn btn-gold px-4" onclick="renderPackages(document.getElementById('main-search').value)">Search</button></div></div></div></div></section>
-            <div class="container py-5"><div class="row g-4 text-center">${['Men', 'Women', 'Children'].map(cat => `<div class="col-md-4"><div class="card card-package border-0 shadow-sm overflow-hidden" onclick="renderPackages('', '${cat}')"><div class="py-4"><i data-lucide="${cat==='Men'?'users':cat==='Women'?'user-round':'baby'}" class="mx-auto mb-3 text-primary" style="width:48px;height:48px"></i><h3>${t[cat.toLowerCase()]}</h3></div></div></div>`).join('')}</div></div>
-          </div>`;
+            <div class="container py-5"><div class="row g-4 justify-content-center">
+              <div class="col-12 col-md-4"><div class="cat-card p-4 text-center" style="border-color: var(--male-blue);" onclick="renderPackages('', 'Men')"><div class="icon-circle" style="background: rgba(0,74,153,0.1); color: var(--male-blue);"><i data-lucide="users" size="40"></i></div><h3 class="fw-bold" style="color: var(--male-blue);">${t.men}</h3></div></div>
+              <div class="col-12 col-md-4"><div class="cat-card p-4 text-center" style="border-color: var(--female-pink);" onclick="renderPackages('', 'Women')"><div class="icon-circle" style="background: rgba(225,29,72,0.1); color: var(--female-pink);"><i data-lucide="user-round" size="40"></i></div><h3 class="fw-bold" style="color: var(--female-pink);">${t.women}</h3></div></div>
+              <div class="col-12 col-md-4"><div class="cat-card p-4 text-center" style="border-color: var(--child-green);" onclick="renderPackages('', 'Children')"><div class="icon-circle" style="background: rgba(16,185,129,0.1); color: var(--child-green);"><i data-lucide="baby" size="40"></i></div><h3 class="fw-bold" style="color: var(--child-green);">${t.children}</h3></div></div>
+            </div></div></div>`;
         lucide.createIcons();
       }
 
       function renderPackages(searchQuery = '', initialCategory = 'all') {
         const t = translations[currentLang];
-        document.getElementById('app-content').innerHTML = `<div data-view="packages" class="container py-5"><div class="row"><div class="col-lg-3"><div class="sidebar mb-4"><div class="d-flex justify-content-between align-items-center mb-4"><h5 class="fw-bold mb-0">${t.filters}</h5><button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="clearFilters()">${t.clear}</button></div><div class="mb-3"><label class="form-label small fw-bold">${t.category}</label><select class="form-select" id="f-cat" onchange="applyFilters()"><option value="all">${t.all}</option>${["Men", "Women", "Children", "Skin/Beauty", "Weight Loss", "Chronic Disease", "Vitamins"].map(c => `<option value="${c}" ${initialCategory===c?'selected':''}>${t[c.toLowerCase().replace('/','')] || c}</option>`).join('')}</select></div><div class="mb-3"><label class="form-label small fw-bold">Price</label><div class="d-flex gap-2"><input type="number" id="f-min" class="form-control" value="0" oninput="applyFilters()"><input type="number" id="f-max" class="form-control" value="1000" oninput="applyFilters()"></div></div><div class="mb-3"><label class="form-label small fw-bold">Tests Count</label><div class="form-check"><input class="form-check-input" type="radio" name="f-tc" value="all" id="tca" checked onchange="applyFilters()"><label class="form-check-label" for="tca">All</label></div><div class="form-check"><input class="form-check-input" type="radio" name="f-tc" value="basic" id="tcb" onchange="applyFilters()"><label class="form-check-label" for="tcb">Basic</label></div></div></div></div><div class="col-lg-9"><input type="text" id="f-name" class="form-control form-control-lg mb-4 shadow-sm" placeholder="${t.searchPlaceholder}" value="${searchQuery}" oninput="applyFilters()"><div class="row g-4" id="pkg-list"></div><div id="no-res" class="text-center py-5 d-none"><p class="lead text-muted">${t.noResults}</p></div></div></div></div>`;
-        lucide.createIcons(); applyFilters();
-      }
-
-      function clearFilters() {
-        document.getElementById('f-cat').value = 'all'; document.getElementById('f-min').value = 0; document.getElementById('f-max').value = 1000;
-        document.getElementById('tca').checked = true; document.getElementById('f-name').value = '';
+        document.getElementById('app-content').innerHTML = `
+          <div data-view="packages" class="container py-5"><div class="row"><div class="col-lg-3"><div class="sidebar mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-4"><h5 class="fw-bold mb-0">${t.filters}</h5><button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="clearFilters()">${t.clear}</button></div>
+          <div class="mb-3"><label class="form-label small fw-bold">${t.category}</label><select class="form-select" id="f-cat" onchange="applyFilters()"><option value="all">${t.all}</option><option value="Men" ${initialCategory==='Men'?'selected':''}>${t.men}</option><option value="Women" ${initialCategory==='Women'?'selected':''}>${t.women}</option><option value="Children" ${initialCategory==='Children'?'selected':''}>${t.children}</option><option value="Weight Loss" ${initialCategory==='Weight Loss'?'selected':''}>${t.weight}</option></select></div>
+          <div class="mb-3"><label class="form-label small fw-bold">Name/Code</label><input type="text" id="f-name" class="form-control" oninput="applyFilters()" value="${searchQuery}"></div>
+          </div></div><div class="col-lg-9"><div class="row g-4" id="pkg-list"></div></div></div></div>`;
         applyFilters();
       }
 
+      window.clearFilters = () => {
+        const cat = document.getElementById('f-cat'); const name = document.getElementById('f-name');
+        if(cat) cat.value = 'all'; if(name) name.value = '';
+        applyFilters();
+      };
+
       function applyFilters() {
-        const cat = document.getElementById('f-cat').value; const min = parseInt(document.getElementById('f-min').value) || 0;
-        const max = parseInt(document.getElementById('f-max').value) || 1000; const tc = document.querySelector('input[name="f-tc"]:checked').value;
-        const nameQ = document.getElementById('f-name').value.toLowerCase();
+        const cat = document.getElementById('f-cat').value; const nameQ = document.getElementById('f-name').value.toLowerCase();
         const filtered = packages.filter(p => {
-          let mCat = cat === 'all' || p.category === cat; if (cat === 'Men' && p.id === 7) mCat = true; if (cat === 'Women' && p.id === 8) mCat = true;
-          const mPrice = p.price >= min && p.price <= max; const mTC = tc === 'all' || (tc === 'basic' && p.testCount <= 10);
-          const mName = nameQ === '' || p.name[currentLang].toLowerCase().includes(nameQ) || p.code.includes(nameQ);
-          return mCat && mPrice && mTC && mName;
+          let mCat = cat === 'all' || p.category === cat;
+          if (cat === 'Men' && p.id === 7) mCat = true;
+          if (cat === 'Women' && p.id === 8) mCat = true;
+          return mCat && (p.name[currentLang].toLowerCase().includes(nameQ) || p.code.includes(nameQ));
         });
         const list = document.getElementById('pkg-list'); list.innerHTML = '';
-        document.getElementById('no-res').classList.toggle('d-none', filtered.length > 0);
         filtered.forEach(p => {
           const t = translations[currentLang];
+          const escapedName = p.name[currentLang].replace(/'/g, "\\'");
           list.innerHTML += `<div class="col-md-6"><div class="card card-package shadow-sm" onclick="showPackageDetails(${p.id})">
-            <div class="barcode-wrapper" onclick="event.stopPropagation(); enlargeBarcode('${p.code}', '${p.name[currentLang]}')"><img class="barcode-img" src="https://barcodeapi.org/api/128/${p.code}" alt="Scan"><div class="code-text">${p.code}</div></div>
+            <div class="barcode-wrapper" onclick="event.stopPropagation(); enlargeBarcode('${p.code}', '${escapedName}')"><img class="barcode-img" src="https://barcodeapi.org/api/128/${p.code}" alt="Scan"><div class="code-text">${p.code}</div></div>
             <div class="card-body p-4"><div class="d-flex justify-content-between mb-2"><span class="badge bg-primary-subtle text-primary">${p.category}</span><span class="price-tag">${p.price} ${t.sar}</span></div>
-            <h5 class="fw-bold">${p.name[currentLang]}</h5>
-            <p class="text-muted small mb-3"><i data-lucide="microscope" class="me-1"></i> ${p.testCount} ${t.tests}</p>
-            <button class="btn btn-gold w-100 mt-auto">${t.details}</button></div></div></div>`;
+            <h5 class="fw-bold">${p.name[currentLang]}</h5><button class="btn btn-gold w-100 mt-auto">${t.details}</button></div></div></div>`;
         });
         lucide.createIcons();
       }
 
       window.enlargeBarcode = (code, name) => {
-        const t = translations[currentLang];
         Swal.fire({
-          title: `<span style="font-size:1.1rem">${name}</span>`,
-          html: `<div style="background:white; padding: 40px 20px; border-radius:10px;"><p class="mb-4 fw-bold text-primary">${t.scanTitle}</p><img style="width:100%; height:auto; max-width:400px; display:block; margin:0 auto;" src="https://barcodeapi.org/api/128/${code}" alt="Enlarged Barcode"><div style="font-family:'JetBrains Mono', monospace; font-size:2rem; margin-top:20px; letter-spacing:8px; color:black;">${code}</div></div>`,
-          showConfirmButton: false, showCloseButton: true, background: '#f8f9fa', width: '600px'
+          title: `<span style="font-size:1rem">${name}</span>`,
+          html: `<div style="background:white; padding:40px 10px;"><p class="fw-bold text-primary mb-4">${translations[currentLang].scanTitle}</p><img style="width:100%; max-width:400px;" src="https://barcodeapi.org/api/128/${code}"><div style="font-family:'JetBrains Mono', monospace; font-size:2.5rem; letter-spacing:10px; margin-top:20px; color:black;">${code}</div></div>`,
+          showConfirmButton: false, showCloseButton: true, width: '600px'
         });
       };
 
       window.showPackageDetails = (id) => {
         const p = packages.find(pkg => pkg.id === id); const t = translations[currentLang];
+        const escapedName = p.name[currentLang].replace(/'/g, "\\'");
         Swal.fire({
           title: p.name[currentLang],
           html: `<div class="text-start ${currentLang==='ar'?'text-end':''}">
-            <div class="text-center mb-4"><div class="barcode-wrapper p-3 d-inline-block border rounded" onclick="enlargeBarcode('${p.code}', '${p.name[currentLang]}')"><img style="height:60px" src="https://barcodeapi.org/api/128/${p.code}" alt="Barcode"><div class="code-text fw-bold" style="font-size:1.1rem; color:var(--primary-blue)">${p.code}</div></div></div>
+            <div class="text-center mb-4"><div class="barcode-wrapper p-3 d-inline-block border rounded" onclick="enlargeBarcode('${p.code}', '${escapedName}')"><img style="height:60px" src="https://barcodeapi.org/api/128/${p.code}"><div class="code-text fw-bold" style="font-size:1.1rem; color:var(--primary-blue)">${p.code}</div></div></div>
             <div class="mb-3"><h6 class="fw-bold text-primary">${t.targetGroup}</h6><p class="small text-muted">${p.targetGroup[currentLang]}</p></div>
-            <div class="mb-3"><h6 class="fw-bold text-danger">${t.precautions}</h6><p class="small text-muted">${p.precautions[currentLang]}</p></div>
-            <div><h6 class="fw-bold text-success">${t.testList} (${p.testCount})</h6><div class="d-flex flex-wrap">${p.tests.map(test => `<span class="test-badge" onclick="showTestInfo('${test.replace(/'/g, "\\'")}', ${p.id})">${test}</span>`).join('')}</div></div>
+            <div class="mb-3"><h6 class="fw-bold text-danger">Precautions</h6><p class="small text-muted">${p.precautions[currentLang]}</p></div>
+            <div><h6 class="fw-bold text-success">Included Tests (${p.testCount})</h6><div class="d-flex flex-wrap">${p.tests.map(test => `<span class="test-badge" onclick="showTestInfo('${test.replace(/'/g, "\\'")}', ${p.id})">${test}</span>`).join('')}</div></div>
           </div>`, width: '700px', confirmButtonColor: '#004a99', showCloseButton: true
         });
       };
 
       window.showTestInfo = (name, pId) => {
-        const t = translations[currentLang]; const item = glossary.find(g => name.toLowerCase().includes(g.name.toLowerCase()));
-        Swal.fire({ title: item ? item.name : name, text: item ? item.description[currentLang] : "Clinical indicator.", icon: 'info', confirmButtonText: t.backToPackage, confirmButtonColor: '#004a99' }).then(() => showPackageDetails(pId));
+        const item = glossary.find(g => name.toLowerCase().includes(g.name.toLowerCase()));
+        Swal.fire({ title: item ? item.name : name, text: item ? item.description[currentLang] : "Specific health indicator.", icon: 'info', confirmButtonText: translations[currentLang].back, confirmButtonColor: '#004a99' }).then(() => showPackageDetails(pId));
       };
 
       function renderGlossary() { const t = translations[currentLang]; document.getElementById('app-content').innerHTML = `<div data-view="glossary" class="container py-5"><h1 class="text-center fw-bold mb-5">${t.glossaryTitle}</h1><div class="row g-4">${glossary.map(g => `<div class="col-md-6"><div class="card h-100 p-4 border-0 shadow-sm"><h5>${g.name}</h5><p class="text-muted">${g.description[currentLang]}</p></div></div>`).join('')}</div></div>`; }
-
-      function renderPreparation() {
-        const t = translations[currentLang]; const visible = packages.filter(p => ![10, 18, 20].includes(p.id));
+      function renderPreparation() { 
+        const t = translations[currentLang]; 
+        const visible = packages.filter(p => ![10, 18, 20].includes(p.id));
         const fasting = visible.filter(p => p.precautions[currentLang].includes('صيام') || p.precautions[currentLang].toLowerCase().includes('fasting'));
         const nonFasting = visible.filter(p => !fasting.includes(p));
         document.getElementById('app-content').innerHTML = `<div data-view="prep" class="container py-5"><h1 class="text-center fw-bold mb-5">${t.prepTitle}</h1><div class="row g-4"><div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="bg-primary text-white p-3"><h5>${t.fastingReq}</h5></div><div class="p-4">${fasting.map(p => `<p class="mb-1 fw-bold">${p.name[currentLang]}</p><p class="small text-danger mb-3">${p.precautions[currentLang]}</p>`).join('')}</div></div></div><div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="bg-success text-white p-3"><h5>${t.noFasting}</h5></div><div class="p-4">${nonFasting.map(p => `<p class="mb-1 fw-bold">${p.name[currentLang]}</p><p class="small text-muted mb-3">${p.precautions[currentLang]}</p>`).join('')}</div></div></div></div></div>`;
