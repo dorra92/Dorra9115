@@ -42,7 +42,7 @@
         .modal-content{background:white;border-radius:32px;max-width:720px;width:92%;max-height:88vh;overflow-y:auto;transform:scale(0.96);transition:transform 0.2s ease;box-shadow:0 40px 70px rgba(0,0,0,0.2);}
         .modal-overlay.active .modal-content{transform:scale(1);}
         .accordion-content{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1);}
-        .accordion-item.open .accordion-content{max-height:280px;}
+        .accordion-item.open .accordion-content{max-height:600px;}
         .accordion-icon{transition:transform 0.2s;}
         .accordion-item.open .accordion-icon{transform:rotate(180deg);}
         .tab-btn{padding:10px 20px;border-radius:60px;font-weight:600;transition:all 0.2s;cursor:pointer;}
@@ -60,6 +60,7 @@
         .badge-outline{background:white;border:1px solid hsl(40,10%,85%);}
         .badge-amber{background:#fffbeb;color:#b45309;border:1px solid #fde68a;}
         .badge-green{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
+        .badge-blue{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;}
         .input,.select{width:100%;padding:10px 14px;border-radius:28px;border:1px solid hsl(40,10%,85%);background:white;font-size:0.9rem;}
         .input:focus,.select:focus{outline:none;border-color:hsl(156,31%,45%);box-shadow:0 0 0 3px rgba(44,85,69,0.12);}
         .category-badge-men{background:rgba(59,130,246,0.12);color:#1e3a8a;}
@@ -72,29 +73,50 @@
         .icon-bg{display:inline-flex;align-items:center;justify-content:center;border-radius:18px;width:40px;height:40px;}
         .mobile-menu{max-height:0;overflow:hidden;transition:max-height 0.3s cubic-bezier(0.4,0,0.2,1);}
         .mobile-menu.open{max-height:260px;}
-        .test-filter-tag{cursor:pointer;transition:0.15s;}
-        .test-filter-tag:hover{background:hsl(156,31%,25%)!important;color:white!important;}
-        
-        /* FIX: Sticky sidebar without overlapping content */
-        .sticky-sidebar-fix {
-            position: sticky;
-            top: 80px;
-            z-index: 5;
-            align-self: flex-start;
+        .back-to-home-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+            background: hsl(156, 31%, 25%);
+            color: white;
+            border-radius: 60px;
+            padding: 12px 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            background: rgba(44,85,69,0.95);
         }
-        
-        /* Ensure main content has proper stacking context */
-        .packages-main-content {
-            position: relative;
-            z-index: 1;
+        .back-to-home-btn:hover {
+            transform: translateY(-3px);
+            background: hsl(156, 31%, 20%);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
         }
-        
-        /* Responsive adjustment for mobile */
-        @media (max-width: 1023px) {
-            .sticky-sidebar-fix {
-                position: static;
-                top: auto;
-            }
+        [dir="rtl"] .back-to-home-btn {
+            right: auto;
+            left: 24px;
+        }
+        @media (max-width: 640px) {
+            .back-to-home-btn span { display: none; }
+            .back-to-home-btn { padding: 12px; border-radius: 50px; }
+        }
+        .glossary-card {
+            transition: all 0.2s;
+        }
+        .glossary-card:hover {
+            border-color: hsl(156, 31%, 65%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .reference-range {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 12px;
         }
     </style>
 </head>
@@ -102,7 +124,7 @@
     <header class="glass-card sticky top-0 z-50 border-b border-white/40">
         <div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-8">
             <div class="flex items-center justify-between h-16 md:h-18">
-                <a href="#" onclick="showView('home')" class="flex items-center gap-2 text-primary font-bold text-xl tracking-tight hover:opacity-85 transition">
+                <a href="#" onclick="forceGoHome(event)" class="flex items-center gap-2 text-primary font-bold text-xl tracking-tight hover:opacity-85 transition">
                     <i data-lucide="heart-pulse" class="w-7 h-7 fill-primary/15 stroke-primary"></i>
                     <span id="logo-text">Health Packages</span>
                 </a>
@@ -122,12 +144,16 @@
     <footer class="bg-foreground text-white pt-14 pb-8 mt-20">
         <div class="max-w-7xl mx-auto px-6 text-center">
             <div class="flex justify-center gap-2 mb-4"><i data-lucide="heart" class="w-6 h-6 fill-secondary/60"></i><span class="font-bold text-xl tracking-wide" id="footer-logo">Health Packages</span></div>
-            
             <div class="border-t border-white/10 pt-6 mt-6 text-sm text-white/40 flex justify-center gap-6 flex-wrap"><span><span id="made-by-text">Made by</span>: Mohamed Salah Dorra - 9115</span><span><span id="area-text">Area</span>: Jubail</span></div>
         </div>
     </footer>
     <div class="modal-overlay" id="package-modal" onclick="closeModal(event)"><div class="modal-content" onclick="event.stopPropagation()"><div id="modal-content" class="p-6"></div></div></div>
     <div class="modal-overlay" id="barcode-modal" onclick="closeBarcodeModal(event)"><div class="modal-content max-w-md" onclick="event.stopPropagation()"><div id="barcode-content" class="p-8 text-center"></div></div></div>
+
+    <button id="floatingBackBtn" class="back-to-home-btn" onclick="forceGoHome(event)" style="display: flex;">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span id="backBtnText">Back to Home</span>
+    </button>
 
     <script>
         // ---------- COMPLETE PACKAGES DATA (20 packages) ----------
@@ -154,82 +180,274 @@
             { id:20,code:"1000225",name:{en:"Basic Diabetic Package",ar:"باقة السكري الأساسية"},price:109,testCount:2,category:"Chronic Disease",tests:["HbA1C","RBS"],precautions:{en:"No fasting required.",ar:"لا يحتاج صيام."},targetGroup:{en:"Sugar level monitoring.",ar:"متابعة مستوى السكر."}}
         ];
 
-        // ---------- COMPLETE GLOSSARY (all unique tests from packages) ----------
-        const allUniqueTests = [...new Set(packages.flatMap(p => p.tests))].sort();
-        const glossary = allUniqueTests.map(testName => ({
-            name: testName,
-            description: {
-                en: getDescriptionEn(testName),
-                ar: getDescriptionAr(testName)
-            }
-        }));
-
-        function getDescriptionEn(test){
-            const descMap = { "CBC":"Complete Blood Count: red/white cells, platelets, anemia, infection.", "HDL":"Good cholesterol; helps remove bad cholesterol.", "LDL":"Bad cholesterol; high levels increase heart disease risk.", "Cholesterol":"Total cholesterol level for heart health.", "Triglycerides":"Fat storage form; high levels linked to metabolic syndrome.", "FBS":"Fasting Blood Sugar: baseline glucose for diabetes screening.", "HbA1C":"Average blood glucose over 2-3 months.", "TSH":"Thyroid Stimulating Hormone: controls metabolism.", "Vitamin D":"Bone health, immunity, mood regulation.", "Ferritin":"Iron storage protein; low indicates deficiency.", "Zinc":"Immune function, wound healing, hair health.", "Magnesium":"Muscle/nerve function, energy production.", "AST/ALT":"Liver enzymes indicating damage or inflammation.", "Urea/Creatinine":"Kidney function markers.", "Testosterone":"Primary male sex hormone.", "Prolactin":"Pituitary hormone; affects fertility.", "PSA":"Prostate specific antigen; prostate health marker.", "LH/FSH":"Fertility and reproductive hormones.", "HOMA-IR":"Insulin resistance score.", "Calprotectin":"Bowel inflammation marker.", "RBS":"Random Blood Sugar: current glucose level." };
-            return descMap[test] || `Measures ${test} levels for metabolic or organ function assessment.`;
+        // Enhanced glossary with detailed info
+        function getEnhancedGlossaryData() {
+            const testsMap = {};
+            const allTests = [...new Set(packages.flatMap(p => p.tests))];
+            
+            allTests.forEach(test => {
+                testsMap[test] = {
+                    name: test,
+                    description: getDetailedDescription(test),
+                    referenceRange: getReferenceRange(test),
+                    clinicalSignificance: getClinicalSignificance(test),
+                    preparation: getPreparationNotes(test),
+                    category: getTestCategory(test)
+                };
+            });
+            return Object.values(testsMap);
         }
-        function getDescriptionAr(test){
-            const descMap = { "CBC":"صورة دم كاملة: خلايا الدم الحمراء والبيضاء والصفائح الدموية.", "HDL":"الكوليسترول الجيد.", "LDL":"الكوليسترول الضار.", "Cholesterol":"مستوى الكوليسترول الكلي.", "Triglycerides":"الدهون الثلاثية.", "FBS":"سكر الدم الصائم.", "HbA1C":"السكر التراكمي.", "TSH":"هرمون الغدة الدرقية.", "Vitamin D":"فيتامين د لصحة العظام.", "Ferritin":"مخزون الحديد.", "Zinc":"الزنك للمناعة والشعر.", "Magnesium":"المغنيسيوم للعضلات والأعصاب.", "AST/ALT":"إنزيمات الكبد.", "Urea/Creatinine":"وظائف الكلى.", "Testosterone":"هرمون التستوستيرون.", "Prolactin":"هرمون الحليب.", "PSA":"مستضد البروستاتا.", "LH/FSH":"هرمونات الخصوبة.", "HOMA-IR":"مؤشر مقاومة الأنسولين.", "Calprotectin":"علامة التهاب الأمعاء.", "RBS":"سكر الدم العشوائي." };
-            return descMap[test] || `تحليل ${test} لتقييم وظائف الجسم.`;
+        
+        function getDetailedDescription(test) {
+            const desc = {
+                "CBC": "Complete Blood Count measures red blood cells (carry oxygen), white blood cells (fight infection), platelets (clotting), hemoglobin, and hematocrit. Essential for detecting anemia, infection, leukemia, and clotting disorders.",
+                "HDL": "High-Density Lipoprotein - 'Good Cholesterol'. Helps remove excess cholesterol from arteries and transport it to the liver for elimination. Higher levels protect against heart disease.",
+                "LDL": "Low-Density Lipoprotein - 'Bad Cholesterol'. Carries cholesterol to arteries where it can form plaque. Elevated levels increase risk of atherosclerosis, heart attack, and stroke.",
+                "Cholesterol": "Total cholesterol measurement including HDL, LDL, and VLDL. Key indicator of cardiovascular health and lipid metabolism.",
+                "Triglycerides": "Main form of fat stored in the body. High levels linked to metabolic syndrome, diabetes, pancreatitis, and heart disease.",
+                "FBS": "Fasting Blood Sugar measures glucose after 8-12 hours fasting. Primary screening test for diabetes and prediabetes.",
+                "HbA1C": "Glycated Hemoglobin reflects average blood glucose over 2-3 months. Gold standard for diabetes management and diagnosis.",
+                "TSH": "Thyroid Stimulating Hormone controls thyroid function. High indicates hypothyroidism, low indicates hyperthyroidism.",
+                "Vitamin D": "Essential for calcium absorption, bone health, immune function, and mood regulation. Deficiency linked to osteoporosis, depression, and autoimmune diseases.",
+                "Ferritin": "Iron storage protein. Low levels indicate iron deficiency anemia. High levels may suggest inflammation, liver disease, or iron overload.",
+                "Zinc": "Essential mineral for immune function, wound healing, DNA synthesis, and hair growth. Deficiency causes hair loss and poor immunity.",
+                "Magnesium": "Critical for muscle/nerve function, blood pressure regulation, protein synthesis, and energy production.",
+                "AST": "Aspartate Aminotransferase - liver enzyme elevated in liver damage, hepatitis, or muscle injury.",
+                "ALT": "Alanine Aminotransferase - more specific liver enzyme marker for hepatocellular injury.",
+                "Urea": "Blood Urea Nitrogen - waste product from protein breakdown. Elevated in kidney dysfunction or dehydration.",
+                "Creatinine": "Waste product from muscle metabolism. Primary marker for kidney filtration function.",
+                "Testosterone": "Primary male sex hormone regulating libido, muscle mass, bone density, and red blood cell production.",
+                "Prolactin": "Pituitary hormone that stimulates milk production. Elevated levels can cause infertility and menstrual irregularities.",
+                "PSA": "Prostate Specific Antigen - screening marker for prostate health and prostate cancer risk.",
+                "LH": "Luteinizing Hormone - regulates reproduction, triggers ovulation in women and testosterone production in men.",
+                "FSH": "Follicle Stimulating Hormone - controls egg/sperm production and reproductive function.",
+                "HOMA-IR": "Homeostatic Model Assessment of Insulin Resistance - calculated index measuring insulin resistance and prediabetes risk.",
+                "Calprotectin": "Fecal marker for intestinal inflammation. Elevated in Crohn's disease and ulcerative colitis.",
+                "CRP": "C-Reactive Protein - acute phase reactant indicating systemic inflammation or infection.",
+                "Amylase": "Digestive enzyme from pancreas. Elevated in pancreatitis or salivary gland disorders.",
+                "Lipase": "More specific pancreatic enzyme marker for acute pancreatitis.",
+                "eGFR": "Estimated Glomerular Filtration Rate - calculated kidney function score. Below 60 indicates kidney disease.",
+                "GGT": "Gamma-Glutamyl Transferase - liver enzyme elevated in alcohol use, bile duct obstruction, or liver disease.",
+                "ALP": "Alkaline Phosphatase - elevated in liver disease, bone disorders, or bile duct blockage.",
+                "CK": "Creatine Kinase - muscle enzyme elevated in heart attack, muscle injury, or intense exercise.",
+                "Vit B12": "Essential for nerve function, DNA synthesis, and red blood cell formation. Deficiency causes fatigue and neurological issues.",
+                "Calcium": "Critical for bone health, muscle contraction, nerve transmission, and blood clotting.",
+                "Phosphorus": "Works with calcium for bone health and energy metabolism.",
+                "Iron": "Essential component of hemoglobin for oxygen transport in blood.",
+                "Sodium": "Major electrolyte regulating fluid balance and nerve function.",
+                "Potassium": "Critical for heart rhythm, muscle contraction, and nerve signals.",
+                "Chloride": "Electrolyte helping maintain fluid balance and acid-base status."
+            };
+            return desc[test] || `${test} - Comprehensive laboratory assessment for metabolic and organ function evaluation. Consult with healthcare provider for interpretation.`;
         }
-
-        const translations = { en:{ logo:"Health Packages", home:"Home", packages:"Packages", glossary:"Test Glossary", preparation:"Prep Guide", langSwitch:"العربية", searchPlaceholder:"Search name, code or test...", sar:"SAR", tests:"tests", viewDetails:"View Details", fastingRequired:"Fasting", noFasting:"Non-fasting", targetGroup:"Target Group", precautions:"Precautions", includedTests:"Tests included", scanAtLab:"Scan at lab", clickToEnlarge:"Click to enlarge", all:"All", men:"Men's", women:"Women's", children:"Children", weightLoss:"Weight Loss", skinBeauty:"Beauty", chronicDisease:"Chronic", vitamins:"Vitamins", noResults:"No packages match", filters:"Filters", clearFilters:"Clear", priceRange:"Price", min:"Min", max:"Max", featured:"Featured Packages", whyChoose:"Why Choose Us?", quality:"Certified Lab", fast:"Rapid Results", expert:"Expert Guidance", heroTitle:"Precision Lab Testing", heroSubtitle:"Comprehensive packages for every health need. Filter by any test – LDL, HDL, CBC, and more.", footerText:"© 2026 Health Packages", madeBy:"Made by", area:"Area", testFilter:"Filter by Test", testPlaceholder:"e.g., LDL, HDL, TSH" }, ar:{ logo:"باقات الصحة", home:"الرئيسية", packages:"الباقات", glossary:"قاموس التحاليل", preparation:"دليل التحضير", langSwitch:"English", searchPlaceholder:"ابحث بالاسم، الكود أو التحليل...", sar:"ريال", tests:"تحليل", viewDetails:"عرض التفاصيل", fastingRequired:"يتطلب صيام", noFasting:"بدون صيام", targetGroup:"الفئة المستهدفة", precautions:"الاحتياطات", includedTests:"التحاليل المشمولة", scanAtLab:"امسح الكود", clickToEnlarge:"انقر للتكبير", all:"الكل", men:"الرجل", women:"المرأة", children:"الأطفال", weightLoss:"التنحيف", skinBeauty:"الجمال", chronicDisease:"المزمنة", vitamins:"الفيتامينات", noResults:"لا توجد باقات", filters:"فلاتر", clearFilters:"مسح", priceRange:"السعر", min:"الحد الأدنى", max:"الأعلى", featured:"باقات مميزة", whyChoose:"لماذا باقاتنا؟", quality:"مختبر معتمد", fast:"نتائج سريعة", expert:"خبراء", heroTitle:"تحاليل دقيقة", heroSubtitle:"باقات شاملة وفلترة حسب أي تحليل مثل LDL و HDL", footerText:"© 2026 باقات الصحة", madeBy:"صنع بواسطة", area:"المنطقة", testFilter:"فلترة حسب التحليل", testPlaceholder:"مثال: LDL, HDL" } };
+        
+        function getReferenceRange(test) {
+            const ranges = {
+                "CBC": "RBC: 4.5-5.9 M/µL (M), 4.1-5.1 M/µL (F) | WBC: 4.5-11.0 K/µL | Platelets: 150-450 K/µL | Hgb: 13.8-17.2 (M), 12.1-15.1 (F) g/dL",
+                "HDL": ">40 mg/dL (M), >50 mg/dL (F) - Optimal: >60 mg/dL",
+                "LDL": "<100 mg/dL Optimal | 100-129 Near Optimal | 130-159 Borderline | >190 High",
+                "Cholesterol": "<200 mg/dL Desirable | 200-239 Borderline | >240 High",
+                "Triglycerides": "<150 mg/dL Normal | 150-199 Borderline | >200 High",
+                "FBS": "70-99 mg/dL Normal | 100-125 Prediabetes | ≥126 Diabetes",
+                "HbA1C": "4-5.6% Normal | 5.7-6.4% Prediabetes | ≥6.5% Diabetes",
+                "TSH": "0.4-4.0 mIU/L (adults) | Target during pregnancy: 0.2-3.5 mIU/L",
+                "Vitamin D": "30-100 ng/mL Sufficient | 20-29 Insufficient | <20 Deficient",
+                "Ferritin": "30-300 ng/mL (M), 15-200 ng/mL (F)",
+                "Zinc": "70-120 mcg/dL",
+                "Magnesium": "1.7-2.2 mg/dL",
+                "AST": "10-40 U/L",
+                "ALT": "7-56 U/L",
+                "Urea": "7-20 mg/dL",
+                "Creatinine": "0.6-1.3 mg/dL (M), 0.5-1.1 mg/dL (F)",
+                "Testosterone": "300-1000 ng/dL (M), 15-70 ng/dL (F)",
+                "Prolactin": "2-18 ng/mL (M), 2-29 ng/mL (F)",
+                "PSA": "<4.0 ng/mL (age-dependent)",
+                "eGFR": ">90 mL/min/1.73m² Normal | 60-89 Mild decrease | <60 Kidney disease"
+            };
+            return ranges[test] || "Reference range varies by age, gender, and laboratory standards. Consult your physician for interpretation.";
+        }
+        
+        function getClinicalSignificance(test) {
+            const significance = {
+                "CBC": "Detects anemia, infections, blood cancers, clotting disorders, and immune system status.",
+                "HDL": "Higher levels reduce cardiovascular risk; low HDL linked to heart disease and metabolic syndrome.",
+                "LDL": "Primary target for cholesterol-lowering therapy; elevated levels accelerate atherosclerosis.",
+                "HbA1C": "Predicts diabetes complications risk; every 1% reduction lowers microvascular complications by 37%.",
+                "TSH": "First-line thyroid screening; abnormal levels affect metabolism, weight, energy, and mood.",
+                "Vitamin D": "Critical for bone density; deficiency linked to falls, fractures, depression, and immune dysfunction."
+            };
+            return significance[test] || `Monitoring ${test} levels helps assess specific organ function, metabolic status, or disease risk.`;
+        }
+        
+        function getPreparationNotes(test) {
+            const prep = {
+                "FBS": "Fasting 8-12 hours required. Water only.",
+                "HbA1C": "No fasting needed. Can be done any time.",
+                "Lipid Profile": "Fasting 9-12 hours for accurate triglycerides and LDL calculation.",
+                "TSH": "No fasting needed. Take at same time of day if monitoring.",
+                "Vitamin D": "No fasting required. Best done in morning."
+            };
+            return prep[test] || "Follow specific package instructions or consult laboratory for preparation requirements.";
+        }
+        
+        function getTestCategory(test) {
+            if(["CBC","RBC","WBC","Platelets","Hgb"].includes(test)) return "Hematology";
+            if(["HDL","LDL","Cholesterol","Triglycerides"].includes(test)) return "Lipid Profile";
+            if(["FBS","HbA1C","HOMA-IR","RBS"].includes(test)) return "Diabetes";
+            if(["TSH","FT3","FT4","Testosterone","Prolactin","LH","FSH"].includes(test)) return "Hormones";
+            if(["AST","ALT","GGT","ALP"].includes(test)) return "Liver Function";
+            if(["Urea","Creatinine","eGFR"].includes(test)) return "Kidney Function";
+            if(["Vitamin D","Vit B12","Iron","Ferritin","Zinc","Magnesium","Calcium"].includes(test)) return "Vitamins & Minerals";
+            return "General Chemistry";
+        }
+        
+        const enhancedGlossary = getEnhancedGlossaryData();
+        
+        const translations = { en:{ logo:"Health Packages", home:"Home", packages:"Packages", glossary:"Test Glossary", preparation:"Prep Guide", langSwitch:"العربية", searchPlaceholder:"Search name, code or test...", sar:"SAR", tests:"tests", viewDetails:"View Details", fastingRequired:"Fasting", noFasting:"Non-fasting", targetGroup:"Target Group", precautions:"Precautions", includedTests:"Tests included", scanAtLab:"Scan at lab", clickToEnlarge:"Click to enlarge", all:"All", men:"Men's", women:"Women's", children:"Children", weightLoss:"Weight Loss", skinBeauty:"Beauty", chronicDisease:"Chronic", vitamins:"Vitamins", noResults:"No packages match", filters:"Filters", clearFilters:"Clear", priceRange:"Price", min:"Min", max:"Max", featured:"Featured Packages", heroTitle:"Precision Lab Testing", heroSubtitle:"Comprehensive packages for every health need.", footerText:"© 2026 Health Packages", madeBy:"Made by", area:"Area", testFilter:"Filter by Test", testPlaceholder:"e.g., LDL, HDL, TSH", backToHome:"Back to Home", glossaryTitle:"Clinical Laboratory Test Directory", glossarySubtitle:"Complete reference with detailed descriptions, reference ranges, and clinical significance" }, ar:{ logo:"باقات الصحة", home:"الرئيسية", packages:"الباقات", glossary:"قاموس التحاليل", preparation:"دليل التحضير", langSwitch:"English", searchPlaceholder:"ابحث بالاسم، الكود أو التحليل...", sar:"ريال", tests:"تحليل", viewDetails:"عرض التفاصيل", fastingRequired:"يتطلب صيام", noFasting:"بدون صيام", targetGroup:"الفئة المستهدفة", precautions:"الاحتياطات", includedTests:"التحاليل المشمولة", scanAtLab:"امسح الكود", clickToEnlarge:"انقر للتكبير", all:"الكل", men:"الرجل", women:"المرأة", children:"الأطفال", weightLoss:"التنحيف", skinBeauty:"الجمال", chronicDisease:"المزمنة", vitamins:"الفيتامينات", noResults:"لا توجد باقات", filters:"فلاتر", clearFilters:"مسح", priceRange:"السعر", min:"الحد الأدنى", max:"الأعلى", featured:"باقات مميزة", heroTitle:"تحاليل دقيقة", heroSubtitle:"باقات شاملة لجميع الاحتياجات الصحية", footerText:"© 2026 باقات الصحة", madeBy:"صنع بواسطة", area:"المنطقة", testFilter:"فلترة حسب التحليل", testPlaceholder:"مثال: LDL, HDL", backToHome:"العودة للرئيسية", glossaryTitle:"دليل التحاليل السريرية", glossarySubtitle:"مرجع كامل مع تفاصيل دقيقة والنطاقات المرجعية" } };
+        
         let currentLang = 'en', currentView = 'home';
         let filters = { category:'all', prep:'all', minPrice:'', maxPrice:'', search:'', testKeyword:'' };
         const t = () => translations[currentLang];
         const categoryConfig = { Men:{ icon:'users', class:'category-badge-men' }, Women:{ icon:'user', class:'category-badge-women' }, Children:{ icon:'baby', class:'category-badge-children' }, 'Weight Loss':{ icon:'scale', class:'category-badge-weight' }, 'Skin/Beauty':{ icon:'sparkles', class:'category-badge-skin' }, 'Chronic Disease':{ icon:'activity', class:'category-badge-chronic' }, Vitamins:{ icon:'pill', class:'category-badge-vitamins' } };
         
-        function toggleLanguage(){ currentLang = currentLang==='en'?'ar':'en'; document.getElementById('html-root').dir = currentLang==='ar'?'rtl':'ltr'; renderNav(); showView(currentView); updateFooter(); lucide.createIcons(); }
-        function updateFooter(){ document.getElementById('footer-logo').innerHTML = t().logo; document.getElementById('footer-text').innerHTML = t().footerText; document.getElementById('made-by-text').innerHTML = t().madeBy; document.getElementById('area-text').innerHTML = t().area; }
-        function renderNav(){ const navItems = ['home','packages','glossary','preparation'].map(id=>({ id, label:t()[id] })); document.getElementById('desktop-nav').innerHTML = navItems.map(i=>`<button onclick="showView('${i.id}')" class="btn-ghost ${currentView===i.id?'active bg-primary/5 text-primary font-semibold':''}">${i.label}</button>`).join(''); document.getElementById('mobile-nav').innerHTML = `<div class="py-3 flex flex-col gap-1">${navItems.map(i=>`<button onclick="showView('${i.id}');toggleMobileMenu();" class="btn-ghost text-left w-full py-2 ${currentView===i.id?'bg-primary/5 text-primary font-semibold':''}">${i.label}</button>`).join('')}</div>`; document.getElementById('lang-text').innerHTML = t().langSwitch; document.getElementById('logo-text').innerHTML = t().logo; }
+        window.forceGoHome = function(event) {
+            if(event) event.preventDefault();
+            filters = { category:'all', prep:'all', minPrice:'', maxPrice:'', search:'', testKeyword:'' };
+            showView('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        
+        window.showView = function(view, category=null) {
+            currentView = view;
+            if(category) filters.category = category;
+            renderNav();
+            if(view==='packages') renderPackages();
+            else if(view==='glossary') renderGlossaryEnhanced();
+            else if(view==='preparation') renderPreparation();
+            else renderHome();
+            lucide.createIcons();
+            window.scrollTo(0,0);
+            const backBtn = document.getElementById('floatingBackBtn');
+            if(backBtn) backBtn.style.display = 'flex';
+            const backSpan = document.getElementById('backBtnText');
+            if(backSpan) backSpan.innerText = t().backToHome;
+        };
+        
+        function renderGlossaryEnhanced() {
+            document.getElementById('app-content').innerHTML = `
+            <div class="max-w-5xl mx-auto px-5 py-12">
+                <div class="text-center mb-10">
+                    <i data-lucide="book-open" class="w-14 h-14 text-primary mx-auto mb-4"></i>
+                    <h1 class="text-3xl md:text-4xl font-bold">${t().glossaryTitle}</h1>
+                    <p class="text-muted-foreground text-lg mt-2 max-w-2xl mx-auto">${t().glossarySubtitle}</p>
+                </div>
+                <div class="space-y-4">
+                    ${enhancedGlossary.map(g => `
+                        <div class="accordion-item glossary-card bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all">
+                            <button onclick="this.parentElement.classList.toggle('open')" class="w-full text-left p-5 flex justify-between items-center hover:bg-gray-50 transition">
+                                <div class="flex flex-col md:flex-row md:items-center gap-3 flex-wrap">
+                                    <span class="font-bold text-lg font-mono text-primary">${g.name}</span>
+                                    <span class="badge ${getCategoryBadgeClass(g.category)} text-xs">${g.category}</span>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-5 h-5 accordion-icon text-gray-400"></i>
+                            </button>
+                            <div class="accordion-content px-5 pb-5">
+                                <div class="prose max-w-none">
+                                    <div class="mb-4 p-4 bg-blue-50/40 rounded-xl">
+                                        <p class="text-gray-700 leading-relaxed">${g.description[currentLang === 'ar' ? 'ar' : 'en'] || g.description.en}</p>
+                                    </div>
+                                    <div class="grid md:grid-cols-2 gap-4 mt-3">
+                                        <div class="reference-range">
+                                            <div class="flex items-center gap-2 mb-2"><i data-lucide="target" class="w-4 h-4 text-primary"></i><span class="font-semibold text-sm">Reference Range</span></div>
+                                            <p class="text-sm text-gray-600">${g.referenceRange}</p>
+                                        </div>
+                                        <div class="reference-range">
+                                            <div class="flex items-center gap-2 mb-2"><i data-lucide="activity" class="w-4 h-4 text-primary"></i><span class="font-semibold text-sm">Clinical Significance</span></div>
+                                            <p class="text-sm text-gray-600">${g.clinicalSignificance}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 p-3 bg-amber-50/40 rounded-xl">
+                                        <div class="flex items-center gap-2 mb-1"><i data-lucide="clipboard" class="w-4 h-4 text-amber-600"></i><span class="font-semibold text-sm">Preparation Notes</span></div>
+                                        <p class="text-sm text-gray-600">${g.preparation}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+            lucide.createIcons();
+        }
+        
+        function getCategoryBadgeClass(category) {
+            const map = {
+                "Hematology": "badge-blue",
+                "Lipid Profile": "badge-amber",
+                "Diabetes": "badge-green",
+                "Hormones": "category-badge-women",
+                "Liver Function": "category-badge-chronic",
+                "Kidney Function": "category-badge-weight",
+                "Vitamins & Minerals": "category-badge-vitamins"
+            };
+            return map[category] || "badge-outline";
+        }
+        
+        window.toggleLanguage = function() { 
+            currentLang = currentLang==='en'?'ar':'en'; 
+            document.getElementById('html-root').dir = currentLang==='ar'?'rtl':'ltr'; 
+            renderNav(); 
+            showView(currentView); 
+            updateFooter(); 
+            lucide.createIcons();
+            const backSpan = document.getElementById('backBtnText');
+            if(backSpan) backSpan.innerText = t().backToHome;
+        };
+        
+        function updateFooter(){ 
+            document.getElementById('footer-logo').innerHTML = t().logo; 
+            const madeSpan = document.getElementById('made-by-text');
+            const areaSpan = document.getElementById('area-text');
+            if(madeSpan) madeSpan.innerHTML = t().madeBy;
+            if(areaSpan) areaSpan.innerHTML = t().area;
+        }
+        
+        function renderNav(){ 
+            const navItems = ['home','packages','glossary','preparation'].map(id=>({ id, label:t()[id] }));
+            document.getElementById('desktop-nav').innerHTML = navItems.map(i=>`<button onclick="showView('${i.id}')" class="btn-ghost ${currentView===i.id?'active bg-primary/5 text-primary font-semibold':''}">${i.label}</button>`).join(''); 
+            document.getElementById('mobile-nav').innerHTML = `<div class="py-3 flex flex-col gap-1">${navItems.map(i=>`<button onclick="showView('${i.id}');toggleMobileMenu();" class="btn-ghost text-left w-full py-2 ${currentView===i.id?'bg-primary/5 text-primary font-semibold':''}">${i.label}</button>`).join('')}</div>`; 
+            document.getElementById('lang-text').innerHTML = t().langSwitch; 
+            document.getElementById('logo-text').innerHTML = t().logo; 
+        }
+        
         function toggleMobileMenu(){ document.getElementById('mobile-nav').classList.toggle('open'); }
-        function showView(view, category=null){ currentView = view; if(category) filters.category = category; renderNav(); if(view==='packages') renderPackages(); else if(view==='glossary') renderGlossary(); else if(view==='preparation') renderPreparation(); else renderHome(); lucide.createIcons(); window.scrollTo(0,0); }
         
         function renderHome(){
             document.getElementById('app-content').innerHTML = `
             <section class="max-w-7xl mx-auto px-5 py-12 lg:py-20">
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <div><span class="text-secondary font-semibold text-sm tracking-wide"></span><h1 class="text-4xl lg:text-5xl font-bold mt-2 leading-tight">${t().heroTitle}</h1><p class="text-muted-foreground text-lg mt-4">${t().heroSubtitle}</p>
+                    <div><h1 class="text-4xl lg:text-5xl font-bold mt-2 leading-tight">${t().heroTitle}</h1><p class="text-muted-foreground text-lg mt-4">${t().heroSubtitle}</p>
                     <div class="flex flex-col sm:flex-row gap-3 mt-8"><input type="text" id="hero-search" placeholder="${t().searchPlaceholder}" class="input flex-1"><button onclick="heroSearch()" class="btn-primary">${t().packages}</button></div></div>
-                    <div class="relative"><img src="https://nctaindia.in/images/course/lab.jpg" class="rounded-3xl shadow-xl object-cover h-80 w-full border-4 border-white" alt="Modern medical laboratory"><div class="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-lg p-3 flex items-center gap-2"><i data-lucide="microscope" class="w-6 h-6 text-primary"></i><span class="font-bold">ISO Certified</span></div></div>
+                    <div class="relative"><img src="https://nctaindia.in/images/course/lab.jpg" class="rounded-3xl shadow-xl object-cover h-80 w-full border-4 border-white" alt="Modern medical laboratory"></div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mt-16">${Object.entries(categoryConfig).map(([key,val])=>`<button onclick="showView('packages','${key}')" class="bg-white rounded-2xl p-5 text-center border hover:border-primary/30 transition shadow-sm"><div class="icon-bg ${val.class} w-12 h-12 mx-auto mb-3 flex items-center justify-center rounded-2xl"><i data-lucide="${val.icon}" class="w-6 h-6"></i></div><span class="font-medium">${t()[key.toLowerCase().replace(' ','')]||key}</span></button>`).join('')}</div>
                 <div class="mt-20"><h2 class="text-2xl font-bold">${t().featured}</h2><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">${packages.slice(0,4).map(p=>renderPackageCard(p)).join('')}</div></div>
-            </section>`; lucide.createIcons();
+            </section>`; 
+            lucide.createIcons();
         }
+        
         function heroSearch(){ filters.search = document.getElementById('hero-search')?.value||''; filters.testKeyword=''; showView('packages'); }
+        
         function renderPackageCard(pkg){ const config = categoryConfig[pkg.category]||{ icon:'flask-conical',class:'category-badge-men' }; const isFasting = pkg.precautions[currentLang].includes('صيام')||pkg.precautions[currentLang].toLowerCase().includes('fasting'); return `<div class="card-hover cursor-pointer bg-white rounded-2xl border border-gray-200 overflow-hidden" onclick="showPackageDetail(${pkg.id})"><div class="barcode-container p-3 text-center border-b"><img src="https://barcodeapi.org/api/128/${pkg.code}" class="h-8 mx-auto opacity-70"><span class="text-xs font-mono tracking-widest text-muted-foreground">${pkg.code}</span></div><div class="p-5"><div class="flex gap-2 mb-3"><div class="p-1.5 rounded-xl ${config.class}"><i data-lucide="${config.icon}" class="w-4 h-4"></i></div><span class="badge badge-outline">${pkg.testCount} ${t().tests}</span><span class="badge ${isFasting?'badge-amber':'badge-green'}">${isFasting?t().fastingRequired:t().noFasting}</span></div><h3 class="font-semibold text-lg mb-2 line-clamp-2">${pkg.name[currentLang]}</h3><div class="flex justify-between items-center mt-4"><span class="text-2xl font-bold text-primary">${pkg.price} <span class="text-sm font-normal">${t().sar}</span></span><button class="btn-primary text-sm py-2 px-4">${t().viewDetails}</button></div></div></div>`; }
         
-        // FIXED: renderPackages with proper sticky sidebar fix - no overlapping
         function renderPackages(){
             const cats = [{val:'all',label:t().all},{val:'Men',label:t().men},{val:'Women',label:t().women},{val:'Children',label:t().children},{val:'Weight Loss',label:t().weightLoss},{val:'Skin/Beauty',label:t().skinBeauty},{val:'Chronic Disease',label:t().chronicDisease},{val:'Vitamins',label:t().vitamins}];
-            document.getElementById('app-content').innerHTML = `
-            <div class="max-w-7xl mx-auto px-5 py-10 lg:py-14">
-                <div class="flex flex-col lg:flex-row gap-8 items-start">
-                    <!-- Sidebar with fixed sticky behavior - no overlap -->
-                    <aside class="lg:w-80 flex-shrink-0 sticky-sidebar-fix">
-                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                            <h3 class="font-bold text-lg flex justify-between"><span>${t().filters}</span><button onclick="clearFilters()" class="text-sm text-primary">${t().clearFilters}</button></h3>
-                            <div class="mt-4 space-y-4">
-                                <div><input type="text" id="filter-search" value="${filters.search}" placeholder="${t().searchPlaceholder}" class="input" oninput="updateFilter('search',this.value)"></div>
-                                <div><input type="text" id="filter-test" value="${filters.testKeyword}" placeholder="${t().testPlaceholder}" class="input" oninput="updateFilter('testKeyword',this.value)"></div>
-                                <div><select class="select" onchange="updateFilter('category',this.value)">${cats.map(c=>`<option value="${c.val}" ${filters.category===c.val?'selected':''}>${c.label}</option>`).join('')}</select></div>
-                                <div><select class="select" onchange="updateFilter('prep',this.value)"><option value="all">${t().all}</option><option value="fasting">${t().fastingRequired}</option><option value="none">${t().noFasting}</option></select></div>
-                                <div><div class="flex gap-2"><input type="number" placeholder="${t().min}" value="${filters.minPrice}" class="input w-1/2" oninput="updateFilter('minPrice',this.value)"><input type="number" placeholder="${t().max}" value="${filters.maxPrice}" class="input w-1/2" oninput="updateFilter('maxPrice',this.value)"></div></div>
-                            </div>
-                        </div>
-                    </aside>
-                    <!-- Main content with proper z-index -->
-                    <main class="flex-1 min-w-0 packages-main-content">
-                        <div class="mb-4 flex justify-between items-center flex-wrap"><h2 class="text-2xl font-bold">${t().packages}</h2><span id="package-count" class="text-muted-foreground"></span></div>
-                        <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6" id="packages-grid"></div>
-                    </main>
-                </div>
-            </div>`;
+            document.getElementById('app-content').innerHTML = `<div class="max-w-7xl mx-auto px-5 py-10 lg:py-14"><div class="flex flex-col lg:flex-row gap-8 items-start"><aside class="lg:w-80 flex-shrink-0 sticky-sidebar-fix"><div class="bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg flex justify-between"><span>${t().filters}</span><button onclick="clearFilters()" class="text-sm text-primary">${t().clearFilters}</button></h3><div class="mt-4 space-y-4"><div><input type="text" id="filter-search" value="${filters.search}" placeholder="${t().searchPlaceholder}" class="input" oninput="updateFilter('search',this.value)"></div><div><input type="text" id="filter-test" value="${filters.testKeyword}" placeholder="${t().testPlaceholder}" class="input" oninput="updateFilter('testKeyword',this.value)"></div><div><select class="select" onchange="updateFilter('category',this.value)">${cats.map(c=>`<option value="${c.val}" ${filters.category===c.val?'selected':''}>${c.label}</option>`).join('')}</select></div><div><select class="select" onchange="updateFilter('prep',this.value)"><option value="all">${t().all}</option><option value="fasting">${t().fastingRequired}</option><option value="none">${t().noFasting}</option></select></div><div><div class="flex gap-2"><input type="number" placeholder="${t().min}" value="${filters.minPrice}" class="input w-1/2" oninput="updateFilter('minPrice',this.value)"><input type="number" placeholder="${t().max}" value="${filters.maxPrice}" class="input w-1/2" oninput="updateFilter('maxPrice',this.value)"></div></div></div></div></aside><main class="flex-1 min-w-0"><div class="mb-4 flex justify-between items-center flex-wrap"><h2 class="text-2xl font-bold">${t().packages}</h2><span id="package-count" class="text-muted-foreground"></span></div><div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6" id="packages-grid"></div></main></div></div>`;
             applyFilters();
         }
-        function updateFilter(key,val){ filters[key]=val; applyFilters(); }
-        function clearFilters(){ filters = { category:'all', prep:'all', minPrice:'', maxPrice:'', search:'', testKeyword:'' }; showView('packages'); }
+        
+        window.updateFilter = function(key,val){ filters[key]=val; applyFilters(); };
+        window.clearFilters = function(){ filters = { category:'all', prep:'all', minPrice:'', maxPrice:'', search:'', testKeyword:'' }; showView('packages'); };
+        
         function applyFilters(){
             const filtered = packages.filter(p=>{
                 const isFasting = p.precautions[currentLang].includes('صيام')||p.precautions[currentLang].toLowerCase().includes('fasting');
@@ -250,13 +468,14 @@
             }
             lucide.createIcons();
         }
-        function showPackageDetail(id){ const pkg = packages.find(p=>p.id===id); const config = categoryConfig[pkg.category]||{icon:'flask-conical',class:'category-badge-men'}; const isFasting = pkg.precautions[currentLang].includes('صيام')||pkg.precautions[currentLang].toLowerCase().includes('fasting'); document.getElementById('modal-content').innerHTML = `<div class="flex justify-between items-center mb-4"><div class="flex gap-3"><div class="p-2 rounded-xl ${config.class}"><i data-lucide="${config.icon}" class="w-5 h-5"></i></div><h2 class="text-xl font-bold">${pkg.name[currentLang]}</h2></div><button onclick="closeModal()" class="btn-ghost"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="bg-gray-50 rounded-2xl p-5 text-center cursor-pointer mb-5" onclick="showEnlargedBarcode('${pkg.code}','${pkg.name[currentLang].replace(/'/g,"\\'")}')"><p class="text-xs text-muted-foreground">${t().clickToEnlarge}</p><img src="https://barcodeapi.org/api/128/${pkg.code}" class="h-10 mx-auto my-2"><span class="font-mono font-bold tracking-wider">${pkg.code}</span><p class="text-xs mt-1">${t().scanAtLab}</p></div><div class="grid grid-cols-2 gap-4 mb-5"><div class="p-3 bg-muted/40 rounded-xl"><div class="text-sm text-muted-foreground">${t().targetGroup}</div><div class="font-medium">${pkg.targetGroup[currentLang]}</div></div><div class="p-3 ${isFasting?'bg-amber-50':'bg-green-50'} rounded-xl"><div class="text-sm text-muted-foreground">${t().precautions}</div><div class="font-medium">${pkg.precautions[currentLang]}</div></div></div><div><h4 class="font-semibold mb-3 flex gap-2"><i data-lucide="microscope" class="w-4 h-4"></i>${t().includedTests} (${pkg.testCount})</h4><div class="flex flex-wrap gap-2">${pkg.tests.map(t=>`<span class="badge bg-gray-100">${t}</span>`).join('')}</div></div><div class="mt-6 p-4 bg-primary/5 rounded-2xl flex justify-between"><span>${t().packages}</span><span class="text-2xl font-bold text-primary">${pkg.price} ${t().sar}</span></div>`; document.getElementById('package-modal').classList.add('active'); lucide.createIcons(); }
-        function closeModal(e){ if(!e||e.target===e.currentTarget) document.getElementById('package-modal').classList.remove('active'); }
-        function showEnlargedBarcode(code,name){ document.getElementById('barcode-content').innerHTML = `<button onclick="closeBarcodeModal()" class="absolute top-3 right-3 btn-ghost"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl font-bold">${name}</h3><img src="https://barcodeapi.org/api/128/${code}" class="w-full max-w-xs mx-auto my-4"><span class="text-2xl font-mono tracking-widest font-bold text-primary">${code}</span><p class="text-muted-foreground text-sm mt-3">${t().scanAtLab}</p>`; document.getElementById('barcode-modal').classList.add('active'); lucide.createIcons(); }
-        function closeBarcodeModal(e){ if(!e||e.target===e.currentTarget) document.getElementById('barcode-modal').classList.remove('active'); }
-        function renderGlossary(){ document.getElementById('app-content').innerHTML = `<div class="max-w-4xl mx-auto px-5 py-12"><div class="text-center"><i data-lucide="book-open" class="w-12 h-12 text-primary mx-auto mb-4"></i><h1 class="text-3xl font-bold">${t().glossary}</h1><p class="text-muted-foreground">Complete list of all 50+ biomarkers</p></div><div class="mt-10 space-y-3">${glossary.map(g=>`<div class="accordion-item bg-white rounded-2xl border p-4"><button onclick="this.parentElement.classList.toggle('open')" class="w-full flex justify-between items-center"><span class="font-semibold">${g.name}</span><i data-lucide="chevron-down" class="w-5 h-5 accordion-icon"></i></button><div class="accordion-content pt-2 text-muted-foreground">${g.description[currentLang]}</div></div>`).join('')}</div></div>`; lucide.createIcons(); }
+        
+        window.showPackageDetail = function(id){ const pkg = packages.find(p=>p.id===id); const config = categoryConfig[pkg.category]||{icon:'flask-conical',class:'category-badge-men'}; const isFasting = pkg.precautions[currentLang].includes('صيام')||pkg.precautions[currentLang].toLowerCase().includes('fasting'); document.getElementById('modal-content').innerHTML = `<div class="flex justify-between items-center mb-4"><div class="flex gap-3"><div class="p-2 rounded-xl ${config.class}"><i data-lucide="${config.icon}" class="w-5 h-5"></i></div><h2 class="text-xl font-bold">${pkg.name[currentLang]}</h2></div><button onclick="closeModal()" class="btn-ghost"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="bg-gray-50 rounded-2xl p-5 text-center cursor-pointer mb-5" onclick="showEnlargedBarcode('${pkg.code}','${pkg.name[currentLang].replace(/'/g,"\\'")}')"><p class="text-xs text-muted-foreground">${t().clickToEnlarge}</p><img src="https://barcodeapi.org/api/128/${pkg.code}" class="h-10 mx-auto my-2"><span class="font-mono font-bold tracking-wider">${pkg.code}</span><p class="text-xs mt-1">${t().scanAtLab}</p></div><div class="grid grid-cols-2 gap-4 mb-5"><div class="p-3 bg-muted/40 rounded-xl"><div class="text-sm text-muted-foreground">${t().targetGroup}</div><div class="font-medium">${pkg.targetGroup[currentLang]}</div></div><div class="p-3 ${isFasting?'bg-amber-50':'bg-green-50'} rounded-xl"><div class="text-sm text-muted-foreground">${t().precautions}</div><div class="font-medium">${pkg.precautions[currentLang]}</div></div></div><div><h4 class="font-semibold mb-3 flex gap-2"><i data-lucide="microscope" class="w-4 h-4"></i>${t().includedTests} (${pkg.testCount})</h4><div class="flex flex-wrap gap-2">${pkg.tests.map(t=>`<span class="badge bg-gray-100">${t}</span>`).join('')}</div></div><div class="mt-6 p-4 bg-primary/5 rounded-2xl flex justify-between"><span>${t().packages}</span><span class="text-2xl font-bold text-primary">${pkg.price} ${t().sar}</span></div>`; document.getElementById('package-modal').classList.add('active'); lucide.createIcons(); };
+        window.closeModal = function(e){ if(!e||e.target===e.currentTarget) document.getElementById('package-modal').classList.remove('active'); };
+        window.showEnlargedBarcode = function(code,name){ document.getElementById('barcode-content').innerHTML = `<button onclick="closeBarcodeModal()" class="absolute top-3 right-3 btn-ghost"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl font-bold">${name}</h3><img src="https://barcodeapi.org/api/128/${code}" class="w-full max-w-xs mx-auto my-4"><span class="text-2xl font-mono tracking-widest font-bold text-primary">${code}</span><p class="text-muted-foreground text-sm mt-3">${t().scanAtLab}</p>`; document.getElementById('barcode-modal').classList.add('active'); lucide.createIcons(); };
+        window.closeBarcodeModal = function(e){ if(!e||e.target===e.currentTarget) document.getElementById('barcode-modal').classList.remove('active'); };
         function renderPreparation(){ const noFastIds = [10,11,18,19,20]; const fasting = packages.filter(p=>!noFastIds.includes(p.id)&&(p.precautions[currentLang].includes('صيام')||p.precautions[currentLang].toLowerCase().includes('fasting'))); const non = packages.filter(p=>noFastIds.includes(p.id)||(!p.precautions[currentLang].includes('صيام')&&!p.precautions[currentLang].toLowerCase().includes('fasting'))); document.getElementById('app-content').innerHTML = `<div class="max-w-5xl mx-auto px-5 py-12"><div class="text-center"><i data-lucide="clipboard-list" class="w-12 h-12 text-primary mx-auto mb-4"></i><h1 class="text-3xl font-bold">${t().preparation}</h1></div><div class="flex justify-center gap-2 mt-6 mb-8"><button onclick="switchTab('fasting')" id="fasting-tab" class="tab-btn active-fasting">${t().fastingRequired}</button><button onclick="switchTab('nonfasting')" id="nonfasting-tab" class="tab-btn">${t().noFasting}</button></div><div id="fasting-panel" class="tab-content active space-y-3">${fasting.map(p=>`<div class="bg-white rounded-xl p-4 border-l-4 border-amber-400 shadow-sm"><h3 class="font-semibold">${p.name[currentLang]}</h3><p class="text-amber-700 text-sm">⚠️ ${p.precautions[currentLang]}</p></div>`).join('')}</div><div id="nonfasting-panel" class="tab-content space-y-3">${non.map(p=>`<div class="bg-white rounded-xl p-4 border-l-4 border-green-400"><h3 class="font-semibold">${p.name[currentLang]}</h3><p class="text-green-700 text-sm">✔️ ${p.precautions[currentLang]}</p></div>`).join('')}</div></div>`; lucide.createIcons(); }
-        function switchTab(tab){ document.getElementById('fasting-tab').className = tab==='fasting'?'tab-btn active-fasting':'tab-btn'; document.getElementById('nonfasting-tab').className = tab==='nonfasting'?'tab-btn active-nonfasting':'tab-btn'; document.getElementById('fasting-panel').className = tab==='fasting'?'tab-content active space-y-3':'tab-content space-y-3'; document.getElementById('nonfasting-panel').className = tab==='nonfasting'?'tab-content active space-y-3':'tab-content space-y-3'; }
+        window.switchTab = function(tab){ document.getElementById('fasting-tab').className = tab==='fasting'?'tab-btn active-fasting':'tab-btn'; document.getElementById('nonfasting-tab').className = tab==='nonfasting'?'tab-btn active-nonfasting':'tab-btn'; document.getElementById('fasting-panel').className = tab==='fasting'?'tab-content active space-y-3':'tab-content space-y-3'; document.getElementById('nonfasting-panel').className = tab==='nonfasting'?'tab-content active space-y-3':'tab-content space-y-3'; };
+        
         document.addEventListener('DOMContentLoaded', ()=>{ renderNav(); showView('home'); lucide.createIcons(); });
     </script>
 </body>
