@@ -107,7 +107,8 @@
             fastingReq: "Fasting Required", noFasting: "No Fasting", targetGroup: "Target Group",
             precautions: "Precautions", testList: "Included Tests", glossaryTitle: "Test Glossary",
             prepTitle: "Preparation Guide", noResults: "No packages found matching your criteria.",
-            basic: "Basic (1-10 tests)", comprehensive: "Comprehensive (11+ tests)"
+            basic: "Basic (1-10 tests)", comprehensive: "Comprehensive (11+ tests)",
+            backToPackage: "Back to Package"
         },
         ar: { 
             logo: "ديمسكو للصحة", home: "الرئيسية", packages: "الباقات", glossary: "قاموس التحاليل", prep: "دليل التحضير",
@@ -119,7 +120,8 @@
             fastingReq: "يتطلب صيام", noFasting: "لا يتطلب صيام", targetGroup: "الفئة المستهدفة",
             precautions: "الاحتياطات", testList: "التحاليل المشمولة", glossaryTitle: "قاموس التحاليل",
             prepTitle: "دليل التحضير", noResults: "لم يتم العثور على نتائج تطابق بحثك.",
-            basic: "أساسي (1-10 تحاليل)", comprehensive: "شامل (11+ تحليل)"
+            basic: "أساسي (1-10 تحاليل)", comprehensive: "شامل (11+ تحليل)",
+            backToPackage: "العودة للباقة"
         }
       };
 
@@ -243,7 +245,11 @@
         const nameQ = document.getElementById('f-name').value.toLowerCase();
 
         const filtered = packages.filter(p => {
-          const mCat = cat === 'all' || p.category === cat;
+          let mCat = cat === 'all' || p.category === cat;
+          // Logic for Him/Her weight loss in gender filters
+          if (cat === 'Men' && p.id === 7) mCat = true;
+          if (cat === 'Women' && p.id === 8) mCat = true;
+
           const mPrice = p.price >= min && p.price <= max;
           const mTC = tc === 'all' || (tc === 'basic' && p.testCount <= 10) || (tc === 'comprehensive' && p.testCount > 10);
           const mTest = testQ === '' || p.tests.some(t => t.toLowerCase().includes(testQ));
@@ -284,15 +290,36 @@
             <div class="text-start ${currentLang==='ar'?'text-end':''}">
               <div class="mb-3"><h6 class="fw-bold text-primary">${t.targetGroup}</h6><p class="small text-muted">${p.targetGroup[currentLang]}</p></div>
               <div class="mb-3"><h6 class="fw-bold text-danger">${t.precautions}</h6><p class="small text-muted">${p.precautions[currentLang]}</p></div>
-              <div><h6 class="fw-bold text-success">${t.testList} (${p.testCount})</h6><div class="d-flex flex-wrap">${p.tests.map(test => `<span class="test-badge" onclick="showTestInfo('${test}')">${test}</span>`).join('')}</div></div>
+              <div><h6 class="fw-bold text-success">${t.testList} (${p.testCount})</h6><div class="d-flex flex-wrap">${p.tests.map(test => `<span class="test-badge" onclick="showTestInfo('${test}', ${p.id})">${test}</span>`).join('')}</div></div>
             </div>`,
           width: '700px', confirmButtonColor: '#004a99'
         });
       };
 
-      window.showTestInfo = (name) => {
+      window.showTestInfo = (name, parentId) => {
+        const t = translations[currentLang];
         const item = glossary.find(g => name.toLowerCase().includes(g.name.toLowerCase()));
-        if (item) Swal.fire({ title: item.name, text: item.description[currentLang], icon: 'info' });
+        if (item) {
+            Swal.fire({ 
+                title: item.name, 
+                text: item.description[currentLang], 
+                icon: 'info',
+                confirmButtonText: t.backToPackage,
+                confirmButtonColor: '#004a99'
+            }).then(() => {
+                showPackageDetails(parentId);
+            });
+        } else {
+            Swal.fire({ 
+                title: name, 
+                text: currentLang === 'en' ? "Information for this test will be added soon." : "سيتم إضافة معلومات لهذا الفحص قريباً.", 
+                icon: 'question',
+                confirmButtonText: t.backToPackage,
+                confirmButtonColor: '#004a99'
+            }).then(() => {
+                showPackageDetails(parentId);
+            });
+        }
       };
 
       function renderGlossary() {
